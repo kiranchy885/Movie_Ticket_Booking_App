@@ -1,6 +1,6 @@
 import React from 'react'
 import { assets } from '../assets/assets'
-import { ArrowRight, ClockIcon } from 'lucide-react'
+import { ArrowRight, ClockIcon, CalendarIcon  } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 const HeroSection = () => {

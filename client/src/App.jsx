@@ -1,34 +1,37 @@
-import React from 'react'
 import Navbar from './components/Navbar'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import Footer from './components/Footer'
+import Home from './pages/Home'
 import Movies from './pages/Movies'
 import MovieDetail from './pages/MovieDetail'
 import SeatLayout from './pages/SeatLayout'
 import MyBooking from './pages/MyBooking'
 import Favorite from './pages/Favorite'
-import Home from './pages/Home'
-import {Toaster } from 'react-hot-toast'
-import Footer from './components/Footer'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import ProtectedRoute from './components/ProtectedRoute'
 
 const App = () => {
-  const isAdminRoute = useLocation().pathname.startsWith('/admin')
+  const { pathname } = useLocation()
+  const isAdminRoute = pathname.startsWith('/admin')
+
   return (
     <>
-    <Toaster />
-      {!isAdminRoute && <Navbar/>}
+      {!isAdminRoute && <Navbar />}
       <Routes>
-        <Route path='/home' element={<Home/>} />
-        <Route path='/movies' element={<Movies/>} />
-        <Route path='/movies/:id' element={<MovieDetail/>} />
-        <Route path='/movies/:id/date' element={<SeatLayout/>} />
-        <Route path='/my-booking' element={<MyBooking/>} />
-        <Route path='/favorite' element={<Favorite/>} />
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/movies" element={<Movies />} />
+        <Route path="/movies/:id" element={<MovieDetail />} />
+        <Route path="/movies/:id/date" element={<ProtectedRoute><SeatLayout /></ProtectedRoute>} />
+        <Route path="/my-booking" element={<ProtectedRoute><MyBooking /></ProtectedRoute>} />
+        <Route path="/favorite" element={<ProtectedRoute><Favorite /></ProtectedRoute>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
-    {!isAdminRoute && <Footer />}
+      {!isAdminRoute && <Footer />}
     </>
   )
 }
-export default App;
 
-
-
+export default App

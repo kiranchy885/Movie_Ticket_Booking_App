@@ -1,8 +1,9 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import timeFormat from '../lib/timeFormat'
+import { Star } from 'lucide-react'
 
-const MovieCard = () => {
+const MovieCard = ({movie}) => {
 
     const navigate = useNavigate()
 
@@ -24,7 +25,7 @@ const MovieCard = () => {
                 className='px-4 py-2 text-xs bg-primary hover:bg-primary-dull
                 transition rounded-full font-medium cursor-pointer'>Buy Tickets </button>
                     <p className='flex items-center gap-1 text-sm text-gray-400 mt-1 pe-1'>
-                        <StartIcon className="w-4 h-4 text-primary fill-primary"/>
+                        <Star className="w-4 h-4 text-primary fill-primary"/>
                         {movie.vote_average.toFixed(1)}
                     </p>
             </div>

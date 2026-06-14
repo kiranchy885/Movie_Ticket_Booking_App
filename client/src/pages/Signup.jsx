@@ -58,7 +58,7 @@ const Signup = () => {
                 {/* Card */}
                 <div className='bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-8'>
                     <h1 className='text-2xl font-bold text-white mb-1'>Create an account</h1>
-                    <p className='text-gray-400 text-sm mb-6'>Book tickets, save favourites, and more</p>
+                    <p className='text-gray-400 text-sm mb-6'>Book tickets, save favorites, and more</p>
 
                     {error && (
                         <div className='mb-4 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm'>

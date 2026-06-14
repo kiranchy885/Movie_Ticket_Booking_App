@@ -22,6 +22,7 @@ const Navbar = () => {
                 <Link to='/' style={{ color: 'white', textDecoration: 'none' }}>Home</Link>
                 <Link to='/movies' style={{ color: 'white', textDecoration: 'none' }}>Movies</Link>
                 <Link to='/favorite' style={{ color: 'white', textDecoration: 'none' }}>Favorites</Link>
+                <Link to='/release' style={{ color: 'white', textDecoration: 'none' }}>Release</Link>
                 <Link to='/my-booking' style={{ color: 'white', textDecoration: 'none' }}>My Bookings</Link>
             </div>
 
@@ -29,8 +30,8 @@ const Navbar = () => {
                 {!user ? (
                     <button
                         onClick={() => navigate('/login')}
-                        style={{ padding: '8px 20px', background: '#e50914', color: 'white', border: 'none', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' }}
-                    >
+                        style={{ padding: '8px 20px', background: '#e50914', color: 'white', border: 'none', borderRadius: '20px', 
+                            cursor: 'pointer', fontWeight: 'bold' }}>
                         Login
                     </button>
                 ) : (
@@ -38,8 +39,8 @@ const Navbar = () => {
                         <span style={{ color: 'white', fontSize: '14px' }}>Hi, {user.name}</span>
                         <button
                             onClick={handleLogout}
-                            style={{ padding: '8px 20px', background: 'transparent', color: 'white', border: '1px solid white', borderRadius: '20px', cursor: 'pointer' }}
-                        >
+                            style={{ padding: '8px 20px', background: 'transparent', color: 'white', border: '1px solid white',
+                                 borderRadius: '20px', cursor: 'pointer' }}>
                             Logout
                         </button>
                     </div>

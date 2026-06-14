@@ -17,3 +17,6 @@ body{
   background-color: black;
    min-height: 100vh;
 }
+.no-scrollbar{
+  scrollbar-width: none;
+}

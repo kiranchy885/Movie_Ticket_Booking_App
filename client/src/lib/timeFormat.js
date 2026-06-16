@@ -1,8 +1,10 @@
+const timeFormat = (minutes) => {
+  if (!minutes) return "N/A";
 
-const timeFormat = (minutes)=>{
-    const hours = Math.floor(minutes / 60);
-    const minutesRemainder = minutes % 60;
-    return '${hours}h ${minutesRemainder}m '
-}
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+
+  return `${hrs}h ${mins}m`;
+};
 
 export default timeFormat;

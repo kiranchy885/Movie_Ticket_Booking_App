@@ -1,6 +1,7 @@
 {
     "css.lint.unknownAtRules": "ignore",
     "cSpell.words": [
+        "Navbarlinks",
         "nextjs",
         "shadcn",
         "trpc",

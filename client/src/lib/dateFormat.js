@@ -7,3 +7,5 @@ export const dateFormat = (date) => {
         minute: 'numeric'
     })
 }
+
+export default dateFormat

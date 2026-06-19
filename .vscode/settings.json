@@ -1,10 +1,16 @@
 {
     "css.lint.unknownAtRules": "ignore",
     "cSpell.words": [
+        "Inngest",
+        "KHBYE",
+        "kiranc",
         "Navbarlinks",
         "nextjs",
+        "quickshow",
         "shadcn",
         "trpc",
+        "upate",
+        "Updation",
         "VITE"
     ]
 }

@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./configs/db.js";
+import showRouter from "./routes/showRoutes.js";
 
 dotenv.config();
 
@@ -10,14 +11,16 @@ connectDB();
 
 app.use(express.json());
 
+// Routes
+app.use("/show", showRouter);
+
 app.get("/", (req, res) => {
   res.send("API Running");
 });
 
-app.listen(process.env.PORT, () => {
-  console.log("Server started on port 3000");
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server started on port ${process.env.PORT || 3000}`);
 });
-
 
 // import express from 'express';
 // import cors from 'cors';

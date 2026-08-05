@@ -1,5 +1,5 @@
-import Booking from "../models/Booking";
-import Show from "../models/Show"
+import Booking from "../models/Booking.js";
+import Show from "../models/Show.js";
 
 
 // Function to check availability of selected seats for a movie

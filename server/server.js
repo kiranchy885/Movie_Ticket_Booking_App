@@ -4,6 +4,7 @@ import connectDB from "./configs/db.js";
 import showRouter from "./routes/showRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
+import userRouter from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -14,9 +15,12 @@ connectDB();
 app.use(express.json());
 
 // Routes
-app.use("/show", showRouter);
+app.use('/api/show', showRouter);
 app.use("/booking", bookingRouter)
-app.use("/admin", adminRouter)
+app.use('/api/admin', adminRouter)
+app.use("/user",userRouter)
+
+
 app.get("/", (req, res) => {
   res.send("API Running");
 });

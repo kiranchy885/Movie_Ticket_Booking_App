@@ -15,10 +15,14 @@ import AddShows from './pages/admin/AddShows'
 import ListBookings from './pages/admin/ListBookings'
 import ListShows from './pages/admin/ListShows'
 import Layout from './pages/admin/Layout'
+import { useAppContext } from './context/AppContext'
+import { LogIn } from 'lucide-react'
 
 const App = () => {
   const { pathname } = useLocation()
   const isAdminRoute = pathname.startsWith('/admin')
+
+  const { user } = useAppContext()
 
   return (
     <>
@@ -33,7 +37,11 @@ const App = () => {
         <Route path="/favorite" element={<ProtectedRoute><Favorite /></ProtectedRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/admin/*" element={<Layout />}>
+        <Route path="/admin/*" element={user ? <Layout /> : (
+          <div>
+            <LogIn fallbackRedirectUrl={'/admin'} />
+          </div>
+        )}>
   <Route index element={<Dashboard />} />
   <Route path="add-shows" element={<AddShows />} />
   <Route path="list-shows" element={<ListShows />} />

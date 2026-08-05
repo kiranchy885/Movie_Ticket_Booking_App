@@ -1,5 +1,5 @@
 import { err } from "inngest/types";
-import Booking from "../models/Booking"
+import Booking from "../models/Booking.js"
 
 
 // API to check if user is Admin

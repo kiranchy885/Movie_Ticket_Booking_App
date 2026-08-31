@@ -1,11 +1,13 @@
-
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { dummyShowsData, dummyDateTimeData, assets } from "../assets/assets";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  dummyShowsData,
+  dummyDateTimeData,
+  assets,
+} from "../assets/assets";
 import { ArrowRightIcon, ClockIcon } from "lucide-react";
 import BlurCircle from "../components/BlurCircle";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
 const SeatLayout = () => {
   const groupRows = [
@@ -21,8 +23,12 @@ const SeatLayout = () => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedTime, setSelectedTime] = useState(null);
   const [show, setShow] = useState(null);
+
   const navigate = useNavigate();
 
+  // ----------------------------------------
+  // GET MOVIE DATA
+  // ----------------------------------------
   useEffect(() => {
     const movie = dummyShowsData.find(
       (item) => item._id.toString() === id.toString()
@@ -40,11 +46,16 @@ const SeatLayout = () => {
     console.log("Date Data:", dummyDateTimeData[date]);
   }, [id, date]);
 
+  // ----------------------------------------
+  // SELECT / UNSELECT SEAT
+  // ----------------------------------------
   const handleSeatClick = (seatId) => {
+    // User must select time first
     if (!selectedTime) {
       return toast("Please select time first");
     }
 
+    // Maximum 5 seats
     if (
       !selectedSeats.includes(seatId) &&
       selectedSeats.length >= 5
@@ -59,6 +70,9 @@ const SeatLayout = () => {
     );
   };
 
+  // ----------------------------------------
+  // RENDER SEATS
+  // ----------------------------------------
   const renderSeats = (row, count = 9) => (
     <div key={row} className="flex gap-2 mt-2">
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -83,6 +97,109 @@ const SeatLayout = () => {
     </div>
   );
 
+  // ----------------------------------------
+  // PROCEED TO CHECKOUT
+  // ----------------------------------------
+  const handleCheckout = () => {
+    // Check time
+    if (!selectedTime) {
+      return toast("Please select a show time");
+    }
+
+    // Check seats
+    if (selectedSeats.length === 0) {
+      return toast("Please select at least one seat");
+    }
+
+    // Movie data
+    const movie = show.movie;
+
+    // Get show price
+    const showPrice =
+      selectedTime.showPrice ||
+      selectedTime.price ||
+      movie.showPrice ||
+      movie.price ||
+      200;
+
+    // Calculate total amount
+    const totalAmount =
+      showPrice * selectedSeats.length;
+
+    // ----------------------------------------
+    // GET OLD BOOKINGS
+    // ----------------------------------------
+    const existingBookings =
+      JSON.parse(localStorage.getItem("bookings")) || [];
+
+    // ----------------------------------------
+    // CREATE NEW BOOKING
+    // ----------------------------------------
+    const newBooking = {
+      id: Date.now(),
+
+      movie: movie.title,
+
+      movieId: movie._id,
+
+      poster_path: movie.poster_path,
+
+      date: date,
+
+      time: new Date(selectedTime.time).toLocaleTimeString(
+        [],
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      ),
+
+      showId: selectedTime.showId,
+
+      amount: totalAmount,
+
+      seats: selectedSeats.length,
+
+      bookedSeats: selectedSeats,
+
+      runtime: movie.runtime,
+
+      isPaid: false,
+    };
+
+    // ----------------------------------------
+    // SAVE BOOKING
+    // ----------------------------------------
+    const updatedBookings = [
+      ...existingBookings,
+      newBooking,
+    ];
+
+    localStorage.setItem(
+      "bookings",
+      JSON.stringify(updatedBookings)
+    );
+
+    // ----------------------------------------
+    // CHECK IN CONSOLE
+    // ----------------------------------------
+    console.log("New Booking:", newBooking);
+    console.log("All Bookings:", updatedBookings);
+
+    // ----------------------------------------
+    // SUCCESS MESSAGE
+    // ----------------------------------------
+    toast.success("Booking created successfully!");
+
+    // ----------------------------------------
+    // GO TO MY BOOKINGS
+    // ----------------------------------------
+    navigate("/my-booking");
+  };
+
+  // ----------------------------------------
+  // LOADING
+  // ----------------------------------------
   if (!show) {
     return (
       <div className="text-center pt-40 text-white">
@@ -91,41 +208,68 @@ const SeatLayout = () => {
     );
   }
 
+  // ----------------------------------------
+  // PAGE
+  // ----------------------------------------
   return (
     <div className="flex flex-col md:flex-row px-6 md:px-16 lg:px-40 pt-40">
-      {/* Timing Section */}
+
+      {/* ---------------------------------- */}
+      {/* TIMING SECTION */}
+      {/* ---------------------------------- */}
+
       <div className="w-60 bg-primary/10 border border-primary/20 rounded-lg py-10">
+
         <p className="text-lg font-semibold px-6">
           Available Timings
         </p>
 
         <div className="mt-5 space-y-2">
-          {show?.dateTime?.[date]?.map((item, index) => (
-            <div
-              key={index}
-              onClick={() => setSelectedTime(item)}
-              className={`flex items-center gap-2 px-6 py-2 cursor-pointer transition-all ${
-                selectedTime?.showId === item.showId
-                  ? "bg-primary text-white"
-                  : "hover:bg-primary/20"
-              }`}
-            >
-              <ClockIcon className="w-4 h-4" />
 
-              <p className="text-sm">
-                {new Date(item.time).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-            </div>
-          ))}
+          {show?.dateTime?.[date]?.map(
+            (item, index) => (
+              <div
+                key={index}
+                onClick={() => {
+                  setSelectedTime(item);
+                  setSelectedSeats([]);
+                }}
+                className={`flex items-center gap-2 px-6 py-2 cursor-pointer transition-all ${
+                  selectedTime?.showId === item.showId
+                    ? "bg-primary text-white"
+                    : "hover:bg-primary/20"
+                }`}
+              >
+
+                <ClockIcon className="w-4 h-4" />
+
+                <p className="text-sm">
+                  {new Date(
+                    item.time
+                  ).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+
+              </div>
+            )
+          )}
+
         </div>
       </div>
 
-      {/* Seats Layout */}
+      {/* ---------------------------------- */}
+      {/* SEAT LAYOUT */}
+      {/* ---------------------------------- */}
+
       <div className="relative flex-1 flex flex-col items-center max-md:mt-16">
-        <BlurCircle top="-100px" left="-100px" />
+
+        <BlurCircle
+          top="-100px"
+          left="-100px"
+        />
+
         <BlurCircle right="0" />
 
         <h1 className="text-2xl font-semibold mb-4">
@@ -135,35 +279,65 @@ const SeatLayout = () => {
         <img
           src={assets.screenImage}
           alt="screen"
-          className="max-w-full"/>
+          className="max-w-full"
+        />
 
-        <p className="text-gray-400 text-sm mb-6">SCREEN SIDE</p>
+        <p className="text-gray-400 text-sm mb-6">
+          SCREEN SIDE
+        </p>
 
         <div className="flex flex-col items-center mt-10 text-xs text-gray-300">
+
           {groupRows.map((group, index) => (
             <div
-              key={index} className="grid grid-cols-2 gap-8 mb-4">
-              {group.map((row) => renderSeats(row))}
+              key={index}
+              className="grid grid-cols-2 gap-8 mb-4"
+            >
+              {group.map((row) =>
+                renderSeats(row)
+              )}
             </div>
           ))}
+
         </div>
-       <div className="mt-8 flex flex-col items-center">
-  <p className="text-white text-lg mb-4">
-    Selected Seats: {selectedSeats.join(", ")}
-  </p>
 
-  <button onClick={() => navigate("/my-booking")}
-    className="flex items-center justify-center gap-2 px-8 py-3 text-sm bg-primary
-    hover:bg-primary-dull transition rounded-full font-medium cursor-pointer
-    active:scale-95">
-    Proceed to CheckOut
-    <ArrowRightIcon strokeWidth={3} className="w-4 h-4" />
-  </button>
-</div>
-</div>
+        {/* ---------------------------------- */}
+        {/* SELECTED SEATS */}
+        {/* ---------------------------------- */}
 
-</div>
+        <div className="mt-8 flex flex-col items-center">
+
+          <p className="text-white text-lg mb-2">
+            Selected Seats:{" "}
+            {selectedSeats.length > 0
+              ? selectedSeats.join(", ")
+              : "None"}
+          </p>
+
+          <p className="text-gray-400 text-sm mb-4">
+            Total Seats: {selectedSeats.length}
+          </p>
+
+          {/* ---------------------------------- */}
+          {/* CHECKOUT BUTTON */}
+          {/* ---------------------------------- */}
+
+          <button
+            onClick={handleCheckout}
+            className="flex items-center justify-center gap-2 px-8 py-3 text-sm bg-primary hover:bg-primary-dull transition rounded-full font-medium cursor-pointer active:scale-95"
+          >
+            Proceed to Checkout
+
+            <ArrowRightIcon
+              strokeWidth={3}
+              className="w-4 h-4"
+            />
+          </button>
+
+        </div>
+      </div>
+    </div>
   );
 };
-export default SeatLayout;
 
+export default SeatLayout;

@@ -5,6 +5,7 @@ import showRouter from "./routes/showRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import userRouter from "./routes/userRoutes.js";
+import centerRouter from "./routes/centerRoutes.js";
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/show', showRouter);
 app.use("/booking", bookingRouter)
 app.use('/api/admin', adminRouter)
+app.use('/api/center', centerRouter);
 app.use("/user",userRouter)
 
 

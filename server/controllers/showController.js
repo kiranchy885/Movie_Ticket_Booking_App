@@ -1,198 +1,327 @@
-import { err } from "inngest/types";
 import Movie from "../models/Movie.js";
 import Show from "../models/Show.js";
 
-// Get all movies 
-  export const getMovies = async (req, res) => {
-  try {
-    const movies = await Movie.find();  // Fetch data from DataBase
+/* =========================================================
+   GET ALL MOVIES
+========================================================= */
+export const getMovies = async (req, res) => {
+    try {
+        const movies = await Movie.find().sort({ createdAt: -1 });
 
-    res.status(200).json({
-      success: true,
-      movies,
-    });
-  } catch (error) {
-    console.log(error);
+        return res.status(200).json({
+            success: true,
+            movies,
+        });
+    } catch (error) {
+        console.error("Get Movies Error:", error);
 
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// Add a new Movie
-export const addMovie = async (req, res) => {
-  try {
-    const{
-    title,
-    overview,
-    poster_path,
-    backdrop_path,
-    release_date,
-    original_language,
-    tagline,
-    genres,
-    casts,
-    runtime,
-    vote_average,
-    trailer,
-  } = req.body;
-
-  const movie = new Movie({
-    title,
-    overview,
-    poster_path,
-    backdrop_path,
-    release_date,
-    original_language,
-    tagline,
-    genres,
-    casts,
-    runtime,
-    vote_average,
-    trailer,
-  });
-
-  await movie.save();
-
-  res.status(201).json({
-    success: true,
-    message: "Movie added successfully",
-    movie,
-  });
-} catch (error) {
-  console.log(error);
-  res.status(500).json({
-    success: false,
-    message: error.message,
-  });
-}
-};
-
-// Get all shows
-export const getAllShows = async (req, res) => {
-  try {
-    const shows = await Show.find()
-    .populate("movie")
-    .sort({ showDateTime: 1 });
-
-    res.status(200).json({
-      success: true,
-      shows,
-    });
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// Get Unique movies that have shows
-export const getUniqueShows = async (req, res) => {
-  try {
-    const shows = await Show.find().populate("movie");
-
-    const uniqueMovies = [];
-    const movieIds = new Set();
-
-    shows.forEach((show) => {
-      if (show.movie && !movieIds.has(show.movie._id.toString())) {
-        movieIds.add(show.movie._id.toString());
-        uniqueMovies.push(show.movie);
-      }
-    });
-
-    res.status(200).json({
-      success: true,
-      movies: uniqueMovies,
-    });
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// Get Single Show
-export const getShow = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const show = await Show.findById(id).populate("movie");
-
-    if (!show) {
-      return res.status(404).json({
-        success: false,
-        message: "Show not found",
-      });
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch movies",
+            error: error.message,
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      show,
-    });
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
 };
 
-// Get upcoming shows for a movie
+
+/* =========================================================
+   SEARCH MOVIES
+========================================================= */
+export const searchMovies = async (req, res) => {
+    try {
+        const { query } = req.query;
+
+        console.log("Search query received:", query);
+
+        if (!query || !query.trim()) {
+            return res.status(200).json({
+                success: true,
+                movies: [],
+            });
+        }
+
+        const movies = await Movie.find({
+            title: {
+                $regex: query.trim(),
+                $options: "i",
+            },
+        })
+            .limit(10)
+            .lean();
+
+        console.log("Movies found:", movies.length);
+        console.log("Movies:", movies);
+
+        return res.status(200).json({
+            success: true,
+            movies,
+        });
+    } catch (error) {
+        console.error("Search Movies Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to search movies",
+            error: error.message,
+        });
+    }
+};
 
 
-// import axios from "axios";
-// import Movie from "../models/Movies.js";
+/* =========================================================
+   ADD MOVIE
+========================================================= */
+export const addMovie = async (req, res) => {
+    try {
+        const movieData = req.body;
 
-// export const getNowPlayingMovies = async (req, res)=>{
-//     try{
-//         const { data } = await axios.get('',{
-//             headers: {Authorization : {}}
-//         })
+        if (!movieData._id) {
+            return res.status(400).json({
+                success: false,
+                message: "Movie ID is required",
+            });
+        }
 
-//         const movies = data.results;
-//         res.json({success: true, movies: movies})
-//     } catch (error) {
-//         console.error(error);
-//         res.json({success: false, message: error.message})
-//     }
-// }
+        if (!movieData.title) {
+            return res.status(400).json({
+                success: false,
+                message: "Movie title is required",
+            });
+        }
 
-// // API to add new show to the database
-// export const addShow = async (req, res) =>{
-//     try {
-//         const {movieId, showsInput, showPrice} = req.body
+        const existingMovie = await Movie.findById(movieData._id);
 
-//         let movie = await Movie.findById(movieId)
+        if (existingMovie) {
+            return res.status(409).json({
+                success: false,
+                message: "Movie already exists",
+            });
+        }
 
-//         if(!movie) {
-//             // Fetch movie details and credits 
-//             const [movieDetailsResponse, movieCreditsResponse] = await Promise.all([
-//                 axios.get(`${movieId}`,{
-//            headers: {Authorization : `Bearer ${process.env.TMDB_API_KEY}`  
-//            }),
-//            const movieApiData = movieDetailsResponse.data;
-//            const movieCreditsData = movieCreditsResponse.data;
+        const movie = await Movie.create(movieData);
 
-//            const movieDetails ={
-//              _id: movieId,
-//              title: movieApiData.title,
-//              overview: movieApiData.poster_path,
-//              backdrop_path: moviesApiData.backdrop_path,}
-//             ])
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         res.json({success: false, message: error.message})
-//     }
-// }
+        return res.status(201).json({
+            success: true,
+            message: "Movie added successfully",
+            movie,
+        });
+    } catch (error) {
+        console.error("Add Movie Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to add movie",
+            error: error.message,
+        });
+    }
+};
+
+
+/* =========================================================
+   ADD SHOW
+========================================================= */
+export const addShow = async (req, res) => {
+    try {
+        const {
+            movie,
+            showDateTime,
+            showPrice,
+        } = req.body;
+
+        if (!movie) {
+            return res.status(400).json({
+                success: false,
+                message: "Movie ID is required",
+            });
+        }
+
+        if (!showDateTime) {
+            return res.status(400).json({
+                success: false,
+                message: "Show date and time are required",
+            });
+        }
+
+        if (showPrice === undefined || showPrice === null) {
+            return res.status(400).json({
+                success: false,
+                message: "Show price is required",
+            });
+        }
+
+        const movieExists = await Movie.findById(movie);
+
+        if (!movieExists) {
+            return res.status(404).json({
+                success: false,
+                message: "Movie not found",
+            });
+        }
+
+        const show = await Show.create({
+            movie,
+            showDateTime: new Date(showDateTime),
+            showPrice: Number(showPrice),
+            occupiedSeats: {},
+        });
+
+        return res.status(201).json({
+            success: true,
+            message: "Show added successfully",
+            show,
+        });
+    } catch (error) {
+        console.error("Add Show Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to add show",
+            error: error.message,
+        });
+    }
+};
+
+
+/* =========================================================
+   GET ALL SHOWS
+========================================================= */
+export const getAllShows = async (req, res) => {
+    try {
+        const shows = await Show.find()
+            .populate("movie")
+            .sort({ showDateTime: 1 });
+
+        return res.status(200).json({
+            success: true,
+            shows,
+        });
+    } catch (error) {
+        console.error("Get All Shows Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch shows",
+            error: error.message,
+        });
+    }
+};
+
+
+/* =========================================================
+   GET SHOWS FOR ONE MOVIE
+========================================================= */
+export const getShow = async (req, res) => {
+    try {
+        const { movieId } = req.params;
+
+        if (!movieId) {
+            return res.status(400).json({
+                success: false,
+                message: "Movie ID is required",
+            });
+        }
+
+        const shows = await Show.find({
+            movie: movieId,
+        }).sort({
+            showDateTime: 1,
+        });
+
+        return res.status(200).json({
+            success: true,
+            shows,
+        });
+    } catch (error) {
+        console.error("Get Show Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch movie shows",
+            error: error.message,
+        });
+    }
+};
+
+
+/* =========================================================
+   GET UNIQUE SHOWS
+========================================================= */
+export const getUniqueShows = async (req, res) => {
+    try {
+        const shows = await Show.find()
+            .populate("movie")
+            .sort({ showDateTime: 1 });
+
+        const uniqueMovies = [];
+
+        const movieIds = new Set();
+
+        for (const show of shows) {
+            if (
+                show.movie &&
+                !movieIds.has(String(show.movie._id))
+            ) {
+                movieIds.add(String(show.movie._id));
+                uniqueMovies.push(show);
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            shows: uniqueMovies,
+        });
+    } catch (error) {
+        console.error("Get Unique Shows Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch unique shows",
+            error: error.message,
+        });
+    }
+};
+
+
+/* =========================================================
+   GET NOW SHOWING MOVIES
+========================================================= */
+export const getNowShowingMovies = async (req, res) => {
+    try {
+        const now = new Date();
+
+        const shows = await Show.find({
+            showDateTime: {
+                $gte: now,
+            },
+        })
+            .populate("movie")
+            .sort({ showDateTime: 1 });
+
+        const movies = [];
+
+        const movieIds = new Set();
+
+        for (const show of shows) {
+            if (
+                show.movie &&
+                !movieIds.has(String(show.movie._id))
+            ) {
+                movieIds.add(String(show.movie._id));
+                movies.push(show.movie);
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            movies,
+        });
+    } catch (error) {
+        console.error("Now Showing Movies Error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch now showing movies",
+            error: error.message,
+        });
+    }
+};

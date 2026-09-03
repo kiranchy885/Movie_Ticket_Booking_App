@@ -1,3 +1,4 @@
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -11,7 +12,6 @@ import Favorite from "./pages/Favorite";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Payment from "./pages/Payment";
-import PaymentResult from "./pages/PaymentResult";
 
 import { Routes, Route, useLocation } from "react-router-dom";
 
@@ -33,6 +33,10 @@ const App = () => {
   const isAdminRoute = pathname.startsWith("/admin");
   const isAdmin = admin?.role === "admin";
 
+  // =========================
+  // LOADING
+  // =========================
+
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -43,6 +47,10 @@ const App = () => {
 
   return (
     <>
+      {/* ========================= */}
+      {/* USER NAVBAR */}
+      {/* ========================= */}
+
       {!isAdminRoute && <Navbar />}
 
       <Routes>
@@ -51,11 +59,20 @@ const App = () => {
         {/* PUBLIC PAGES */}
         {/* ========================= */}
 
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={<Home />}
+        />
 
-        <Route path="/home" element={<Home />} />
+        <Route
+          path="/home"
+          element={<Home />}
+        />
 
-        <Route path="/movies" element={<Movies />} />
+        <Route
+          path="/movies"
+          element={<Movies />}
+        />
 
         <Route
           path="/movies/:id"
@@ -133,15 +150,6 @@ const App = () => {
           }
         />
 
-        <Route
-          path="/payment-result/:bookingId"
-          element={
-            <ProtectedRoute>
-              <PaymentResult />
-            </ProtectedRoute>
-          }
-        />
-
         {/* ========================= */}
         {/* ADMIN */}
         {/* ========================= */}
@@ -160,20 +168,28 @@ const App = () => {
             )
           }
         >
+          {/* Admin Dashboard */}
+
           <Route
             index
             element={<Dashboard />}
           />
+
+          {/* Add Shows */}
 
           <Route
             path="add-shows"
             element={<AddShows />}
           />
 
+          {/* List Shows */}
+
           <Route
             path="list-shows"
             element={<ListShows />}
           />
+
+          {/* List Bookings */}
 
           <Route
             path="list-bookings"
@@ -182,7 +198,7 @@ const App = () => {
         </Route>
 
         {/* ========================= */}
-        {/* 404 */}
+        {/* 404 PAGE */}
         {/* ========================= */}
 
         <Route
@@ -204,9 +220,14 @@ const App = () => {
 
       </Routes>
 
+      {/* ========================= */}
+      {/* USER FOOTER */}
+      {/* ========================= */}
+
       {!isAdminRoute && <Footer />}
     </>
   );
 };
 
 export default App;
+

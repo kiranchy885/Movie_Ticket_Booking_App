@@ -1,158 +1,660 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 
-const AuthContext = createContext(null)
+import { useNavigate } from "react-router-dom";
 
+// =====================================================
+// CREATE CONTEXT
+// =====================================================
 
-// ========================================
-// ADMIN EMAIL
-// ========================================
+const AuthContext = createContext();
 
-const ADMIN_EMAIL = 'admin@gmail.com'
+// =====================================================
+// API URL
+// =====================================================
 
+const API_URL = "http://localhost:5000";
+
+// =====================================================
+// AUTH PROVIDER
+// =====================================================
 
 export const AuthProvider = ({ children }) => {
+    const navigate = useNavigate();
 
-    const [user, setUser] = useState(() => {
+    // =================================================
+    // USER
+    // =================================================
 
+    const [user, setUser] = useState(null);
+
+    // =================================================
+    // ADMIN
+    // =================================================
+
+    const [admin, setAdmin] = useState(null);
+
+    // =================================================
+    // LOADING
+    // =================================================
+
+    const [loading, setLoading] = useState(true);
+
+    // =================================================
+    // LOAD SAVED LOGIN SESSION
+    // =================================================
+
+    useEffect(() => {
         try {
+            const savedUser =
+                localStorage.getItem("userUser");
 
-            const stored = localStorage.getItem('auth_user')
+            const savedAdmin =
+                localStorage.getItem("adminUser");
 
-            return stored
-                ? JSON.parse(stored)
-                : null
+            const token =
+                localStorage.getItem("token");
 
-        } catch {
+            // =============================================
+            // RESTORE ADMIN
+            // =============================================
 
-            return null
+            if (savedAdmin && token) {
+                const adminData =
+                    JSON.parse(savedAdmin);
 
+                if (
+                    adminData &&
+                    adminData.role === "admin"
+                ) {
+                    setAdmin(adminData);
+                    setUser(null);
+                } else {
+                    localStorage.removeItem("adminUser");
+                    localStorage.removeItem("token");
+                }
+            }
+
+            // =============================================
+            // RESTORE NORMAL USER
+            // =============================================
+
+            else if (savedUser && token) {
+                const userData =
+                    JSON.parse(savedUser);
+
+                if (
+                    userData &&
+                    userData.role === "user"
+                ) {
+                    setUser(userData);
+                    setAdmin(null);
+                } else {
+                    localStorage.removeItem("userUser");
+                    localStorage.removeItem("token");
+                }
+            }
+
+            // =============================================
+            // NO SESSION
+            // =============================================
+
+            else {
+                setUser(null);
+                setAdmin(null);
+            }
+        } catch (error) {
+            console.error(
+                "Error restoring login session:",
+                error
+            );
+
+            localStorage.removeItem("userUser");
+            localStorage.removeItem("adminUser");
+            localStorage.removeItem("token");
+
+            setUser(null);
+            setAdmin(null);
+        } finally {
+            setLoading(false);
         }
+    }, []);
 
-    })
-
-
-    // ========================================
+    // =====================================================
     // LOGIN
-    // ========================================
+    // =====================================================
 
     const login = async (email, password) => {
+        try {
+            // IMPORTANT:
+            // Backend route should be:
+            // POST /api/user/login
 
-        // Check if this is the admin email
-        const isAdmin =
-            email.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+            const response = await fetch(
+                `${API_URL}/api/user/login`,
+                {
+                    method: "POST",
 
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
 
-        const loggedInUser = {
+                    body: JSON.stringify({
+                        email: email
+                            .trim()
+                            .toLowerCase(),
 
-            name: isAdmin
-                ? 'Admin'
-                : 'Demo User',
+                        password,
+                    }),
+                }
+            );
 
-            email: email,
+            // =============================================
+            // SAFELY READ RESPONSE
+            // =============================================
 
-            avatar: null,
+            const contentType =
+                response.headers.get("content-type");
 
-            role: isAdmin
-                ? 'admin'
-                : 'user'
+            let data;
 
+            if (
+                contentType &&
+                contentType.includes("application/json")
+            ) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+
+                console.error(
+                    "Server returned non-JSON response:",
+                    text
+                );
+
+                throw new Error(
+                    `Server error: ${response.status}`
+                );
+            }
+
+            console.log(
+                "Login response:",
+                data
+            );
+
+            // =============================================
+            // LOGIN FAILED
+            // =============================================
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+                throw new Error(
+                    data.message ||
+                    "Invalid email or password."
+                );
+            }
+
+            // =============================================
+            // GET USER + TOKEN
+            // =============================================
+
+            const loggedInUser =
+                data.user;
+
+            const token =
+                data.token;
+
+            // =============================================
+            // CHECK SERVER RESPONSE
+            // =============================================
+
+            if (
+                !loggedInUser ||
+                !token
+            ) {
+                throw new Error(
+                    "Invalid login response from server."
+                );
+            }
+
+            // =============================================
+            // ADMIN LOGIN
+            // =============================================
+
+            if (
+                loggedInUser.role === "admin"
+            ) {
+                // Remove normal user session
+                localStorage.removeItem(
+                    "userUser"
+                );
+
+                // Save token
+                localStorage.setItem(
+                    "token",
+                    token
+                );
+
+                // Save admin
+                localStorage.setItem(
+                    "adminUser",
+                    JSON.stringify(
+                        loggedInUser
+                    )
+                );
+
+                // Update state
+                setUser(null);
+                setAdmin(loggedInUser);
+
+                console.log(
+                    "Admin login successful"
+                );
+
+                console.log(
+                    "Admin:",
+                    loggedInUser
+                );
+
+                console.log(
+                    "Admin token saved:",
+                    localStorage.getItem("token")
+                );
+
+                return {
+                    ...loggedInUser,
+                    token,
+                };
+            }
+
+            // =============================================
+            // NORMAL USER LOGIN
+            // =============================================
+
+            if (
+                loggedInUser.role === "user"
+            ) {
+                // Remove admin session
+                localStorage.removeItem(
+                    "adminUser"
+                );
+
+                // Save token
+                localStorage.setItem(
+                    "token",
+                    token
+                );
+
+                // Save user
+                localStorage.setItem(
+                    "userUser",
+                    JSON.stringify(
+                        loggedInUser
+                    )
+                );
+
+                // Update state
+                setAdmin(null);
+                setUser(loggedInUser);
+
+                console.log(
+                    "User login successful"
+                );
+
+                console.log(
+                    "User:",
+                    loggedInUser
+                );
+
+                console.log(
+                    "User token saved:",
+                    localStorage.getItem("token")
+                );
+
+                return {
+                    ...loggedInUser,
+                    token,
+                };
+            }
+
+            // =============================================
+            // INVALID ROLE
+            // =============================================
+
+            throw new Error(
+                "Invalid account role."
+            );
+        } catch (error) {
+            console.error(
+                "Login error:",
+                error
+            );
+
+            throw error;
         }
+    };
 
-
-        setUser(loggedInUser)
-
-
-        localStorage.setItem(
-            'auth_user',
-            JSON.stringify(loggedInUser)
-        )
-
-
-        return loggedInUser
-
-    }
-
-
-    // ========================================
+    // =====================================================
     // SIGNUP
-    // ========================================
+    // =====================================================
 
-    const signup = async (name, email, password) => {
+    const signup = async (
+        name,
+        email,
+        password
+    ) => {
+        try {
+            // IMPORTANT:
+            // Backend route should be:
+            // POST /api/user/signup
 
-        const newUser = {
+            const response = await fetch(
+                `${API_URL}/api/user/signup`,
+                {
+                    method: "POST",
 
-            name,
+                    headers: {
+                        "Content-Type":
+                            "application/json",
+                    },
 
-            email,
+                    body: JSON.stringify({
+                        name: name.trim(),
 
-            avatar: null,
+                        email: email
+                            .trim()
+                            .toLowerCase(),
 
-            role: 'user'
+                        password,
+                    }),
+                }
+            );
 
+            // =============================================
+            // SAFELY READ RESPONSE
+            // =============================================
+
+            const contentType =
+                response.headers.get("content-type");
+
+            let data;
+
+            if (
+                contentType &&
+                contentType.includes("application/json")
+            ) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+
+                console.error(
+                    "Server returned non-JSON response:",
+                    text
+                );
+
+                throw new Error(
+                    `Server error: ${response.status}`
+                );
+            }
+
+            console.log(
+                "Signup response:",
+                data
+            );
+
+            // =============================================
+            // SIGNUP FAILED
+            // =============================================
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+                throw new Error(
+                    data.message ||
+                    "Could not create account."
+                );
+            }
+
+            // =============================================
+            // GET USER + TOKEN
+            // =============================================
+
+            const newUser =
+                data.user;
+
+            const token =
+                data.token;
+
+            // =============================================
+            // CHECK SERVER RESPONSE
+            // =============================================
+
+            if (
+                !newUser ||
+                !token
+            ) {
+                throw new Error(
+                    "Invalid signup response from server."
+                );
+            }
+
+            // =============================================
+            // SIGNUP ALWAYS CREATES NORMAL USER
+            // =============================================
+
+            // Remove admin session
+            localStorage.removeItem(
+                "adminUser"
+            );
+
+            // Save token
+            localStorage.setItem(
+                "token",
+                token
+            );
+
+            // Save user
+            localStorage.setItem(
+                "userUser",
+                JSON.stringify(
+                    newUser
+                )
+            );
+
+            // Update state
+            setAdmin(null);
+            setUser(newUser);
+
+            console.log(
+                "Signup successful"
+            );
+
+            console.log(
+                "New user:",
+                newUser
+            );
+
+            console.log(
+                "Signup token saved:",
+                localStorage.getItem("token")
+            );
+
+            return {
+                ...newUser,
+                token,
+            };
+        } catch (error) {
+            console.error(
+                "Signup error:",
+                error
+            );
+
+            throw error;
+        }
+    };
+
+    // =====================================================
+    // CHECK LOGIN
+    // =====================================================
+
+    const isLoggedIn = () => {
+        return !!(
+            user ||
+            admin
+        );
+    };
+
+    // =====================================================
+    // REQUIRE LOGIN
+    // =====================================================
+
+    const requireLogin = (action) => {
+        if (!isLoggedIn()) {
+            navigate("/login");
+            return false;
         }
 
+        if (
+            typeof action === "function"
+        ) {
+            action();
+        }
 
-        setUser(newUser)
+        return true;
+    };
 
+    // =====================================================
+    // USER LOGOUT
+    // =====================================================
 
-        localStorage.setItem(
-            'auth_user',
-            JSON.stringify(newUser)
-        )
+    const logoutUser = () => {
+        localStorage.removeItem(
+            "token"
+        );
 
+        localStorage.removeItem(
+            "userUser"
+        );
 
-        return newUser
+        setUser(null);
 
-    }
+        navigate("/login");
+    };
 
+    // =====================================================
+    // ADMIN LOGOUT
+    // =====================================================
 
-    // ========================================
-    // LOGOUT
-    // ========================================
+    const logoutAdmin = () => {
+        localStorage.removeItem(
+            "token"
+        );
+
+        localStorage.removeItem(
+            "adminUser"
+        );
+
+        setAdmin(null);
+
+        navigate("/login");
+    };
+
+    // =====================================================
+    // GENERAL LOGOUT
+    // =====================================================
 
     const logout = () => {
+        localStorage.removeItem(
+            "token"
+        );
 
-        setUser(null)
+        localStorage.removeItem(
+            "userUser"
+        );
 
-        localStorage.removeItem('auth_user')
+        localStorage.removeItem(
+            "adminUser"
+        );
 
-    }
+        setUser(null);
+        setAdmin(null);
 
+        navigate("/login");
+    };
+
+    // =====================================================
+    // CONTEXT VALUE
+    // =====================================================
+
+    const value = {
+        user,
+
+        admin,
+
+        loading,
+
+        login,
+
+        signup,
+
+        logout,
+
+        logoutUser,
+
+        logoutAdmin,
+
+        // =============================================
+        // LOGIN STATUS
+        // =============================================
+
+        isUserLoggedIn: !!user,
+
+        isAdminLoggedIn: !!admin,
+
+        isLoggedIn,
+
+        // =============================================
+        // PROTECTED ACTION
+        // =============================================
+
+        requireLogin,
+    };
+
+    // =====================================================
+    // PROVIDER
+    // =====================================================
 
     return (
-
         <AuthContext.Provider
-            value={{
-                user,
-                login,
-                signup,
-                logout
-            }}
+            value={value}
         >
-
             {children}
-
         </AuthContext.Provider>
+    );
+};
 
-    )
-
-}
-
+// =========================================================
+// USE AUTH
+// =========================================================
 
 export const useAuth = () => {
+    const context =
+        useContext(AuthContext);
 
-    const ctx = useContext(AuthContext)
-
-
-    if (!ctx) {
-
+    if (!context) {
         throw new Error(
-            'useAuth must be used inside AuthProvider'
-        )
-
+            "useAuth must be used inside AuthProvider"
+        );
     }
 
+    return context;
+};
 
-    return ctx
-
-}
+export default AuthContext;

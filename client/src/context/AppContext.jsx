@@ -1,98 +1,143 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import axios from 'axios'
-import { useAuth } from './AuthContext'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
 
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
+import { createContext, useContext, useState } from "react";
+import axios from "axios";
 
-export const AppContext = createContext()
+const AppContext = createContext();
+
+const API_URL = "http://localhost:5000";
 
 export const AppProvider = ({ children }) => {
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [shows, setShows] = useState([])
-  const [favoriteMovies, setFavoriteMovies] = useState([])
+    const [user, setUser] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-  const { user } = useAuth()
+    // =========================
+    // Login
+    // =========================
+    const login = async (email, password) => {
+        try {
+            setLoading(true);
 
-  const location = useLocation()
-  const navigate = useNavigate()
+            const { data } = await axios.post(
+                `${API_URL}/user/login`,
+                {
+                    email,
+                    password,
+                },
+                {
+                    withCredentials: true,
+                }
+            );
 
-  const fetchIsAdmin = async () => {
-    try {
-      const { data } = await axios.get('/api/admin/is-admin')
+            if (data.success) {
+                setUser(data.user);
 
-      setIsAdmin(data.isAdmin)
+                if (data.user?.isAdmin) {
+                    setIsAdmin(true);
+                }
 
-      if (!data.isAdmin && location.pathname.startsWith('/admin')) {
-        navigate('/')
-        toast.error('You are not authorized to access admin dashboard')
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
+                return {
+                    success: true,
+                    data,
+                };
+            }
 
-  const fetchShows = async () => {
-    try {
-      const { data } = await axios.get('/api/show/all')
+            return {
+                success: false,
+                message: data.message || "Login failed",
+            };
+        } catch (error) {
+            console.error("Login Error:", error);
 
-      if (data.success) {
-        setShows(data.shows)
-      } else {
-        toast.error(data.message)
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
+            return {
+                success: false,
+                message:
+                    error.response?.data?.message ||
+                    error.message ||
+                    "Network Error",
+            };
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  const fetchFavoriteMovies = async () => {
-    try {
-      const { data } = await axios.get('/api/user/favorites')
+    // =========================
+    // Register
+    // =========================
+    const register = async (name, email, password) => {
+        try {
+            setLoading(true);
 
-      if (data.success) {
-        setFavoriteMovies(data.movies)
-      } else {
-        toast.error(data.message)
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
+            const { data } = await axios.post(
+                `${API_URL}/user/register`,
+                {
+                    name,
+                    email,
+                    password,
+                },
+                {
+                    withCredentials: true,
+                }
+            );
 
-  useEffect(() => {
-    fetchShows()
-  }, [])
+            if (data.success) {
+                setUser(data.user);
 
-  useEffect(() => {
-    if (user) {
-      fetchIsAdmin()
-      fetchFavoriteMovies()
-    }
-  }, [user])
+                if (data.user?.isAdmin) {
+                    setIsAdmin(true);
+                }
 
-  const value = {
-    axios,
-    fetchIsAdmin,
-    user,
-    navigate,
-    isAdmin,
-    setIsAdmin,
-    shows,
-    setShows,
-    fetchFavoriteMovies,
-    favoriteMovies,
-    setFavoriteMovies
-  }
+                return {
+                    success: true,
+                    data,
+                };
+            }
 
-  return (
-    <AppContext.Provider value={value}>
-      {children}
-    </AppContext.Provider>
-  )
-}
+            return {
+                success: false,
+                message: data.message || "Registration failed",
+            };
+        } catch (error) {
+            console.error("Register Error:", error);
+
+            return {
+                success: false,
+                message:
+                    error.response?.data?.message ||
+                    error.message ||
+                    "Network Error",
+            };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // =========================
+    // Logout
+    // =========================
+    const logout = () => {
+        setUser(null);
+        setIsAdmin(false);
+    };
+
+    return (
+        <AppContext.Provider
+            value={{
+                user,
+                setUser,
+                isAdmin,
+                setIsAdmin,
+                loading,
+                login,
+                register,
+                logout,
+            }}
+        >
+            {children}
+        </AppContext.Provider>
+    );
+};
 
 export const useAppContext = () => {
-  return useContext(AppContext)
-}
+    return useContext(AppContext);
+};

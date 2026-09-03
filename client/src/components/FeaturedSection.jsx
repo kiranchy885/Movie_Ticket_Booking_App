@@ -1,9 +1,7 @@
-
 import { ArrowRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BlurCircle from "./BlurCircle";
-import { dummyShowsData } from "../assets/assets";
 import MovieCard from "./MovieCard";
 
 const FeaturedSection = () => {
@@ -12,65 +10,88 @@ const FeaturedSection = () => {
   const [featuredMovies, setFeaturedMovies] = useState([]);
 
   // ============================================
-  // LOAD ADMIN-ADDED SHOWS
+  // LOAD ADMIN-ADDED SHOWS FROM DATABASE
   // ============================================
 
   useEffect(() => {
-    const fetchFeaturedMovies = () => {
+    const fetchFeaturedMovies = async () => {
       try {
-        // Get shows added by admin
-        const savedShows = JSON.parse(
-          localStorage.getItem("quickshow_shows") || "[]"
+        // ============================================
+        // GET SHOWS FROM MONGODB
+        // ============================================
+
+        const response = await fetch(
+          "http://localhost:5000/show/all"
         );
 
-        console.log("Admin Added Shows:", savedShows);
+        const data = await response.json();
 
-        // If no shows are available
-        if (savedShows.length === 0) {
-          setFeaturedMovies([]);
-          return;
+        console.log(
+          "Shows from database:",
+          data
+        );
+
+        if (
+          !response.ok ||
+          !data.success
+        ) {
+          throw new Error(
+            data.message ||
+              "Failed to fetch shows"
+          );
         }
 
         // ============================================
-        // GET MOVIES FROM ADMIN-ADDED SHOWS
+        // GET MOVIES FROM SHOW DATA
+        // ============================================
+        //
+        // Each show contains:
+        //
+        // show.movie
+        //
+        // because backend uses:
+        //
+        // .populate("movie")
+        //
         // ============================================
 
-        const movies = savedShows
-          .map((show) => {
-            // Find movie using movieId
-            const movie = dummyShowsData.find(
-              (movie) =>
-                String(movie.id) === String(show.movieId) ||
-                String(movie._id) === String(show.movieId)
-            );
-
-            return movie;
-          })
+        const movies = data.shows
+          .map((show) => show.movie)
           .filter(Boolean);
+
+        console.log(
+          "Movies from database:",
+          movies
+        );
 
         // ============================================
         // REMOVE DUPLICATE MOVIES
         // ============================================
 
-        const uniqueMovies = movies.filter(
-          (movie, index, self) =>
-            index ===
-            self.findIndex(
-              (item) =>
-                String(item.id || item._id) ===
-                String(movie.id || movie._id)
-            )
-        );
+        const uniqueMovies =
+          movies.filter(
+            (movie, index, self) =>
+              index ===
+              self.findIndex(
+                (item) =>
+                  String(item._id) ===
+                  String(movie._id)
+              )
+          );
 
         // ============================================
-        // REVERSE ORDER
         // LATEST ADDED SHOW FIRST
         // ============================================
 
         uniqueMovies.reverse();
 
-        // Show maximum 8 movies
-        setFeaturedMovies(uniqueMovies.slice(0, 8));
+        // ============================================
+        // SHOW ONLY 4 MOVIES
+        // ============================================
+
+        setFeaturedMovies(
+          uniqueMovies.slice(0, 4)
+        );
 
       } catch (error) {
         console.error(
@@ -79,6 +100,7 @@ const FeaturedSection = () => {
         );
 
         setFeaturedMovies([]);
+
       }
     };
 
@@ -108,8 +130,10 @@ const FeaturedSection = () => {
         </p>
 
         <button
-          onClick={() => navigate("/movies")}
-          className="group flex items-center gap-2 text-sm
+          onClick={() =>
+            navigate("/movies")
+          }
+          className="group flex items-center gap-2 text-sm 
           text-gray-300 cursor-pointer"
         >
           View All
@@ -118,6 +142,7 @@ const FeaturedSection = () => {
             className="group-hover:translate-x-0.5 transition w-4.5 h-4.5"
           />
         </button>
+
       </div>
 
       {/* ========================================= */}
@@ -125,22 +150,32 @@ const FeaturedSection = () => {
       {/* ========================================= */}
 
       {featuredMovies.length > 0 ? (
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
 
-          {featuredMovies.map((movie) => (
-            <MovieCard
-              key={movie.id || movie._id}
-              movie={movie}
-            />
-          ))}
+          {featuredMovies.map(
+            (movie) => (
+
+              <MovieCard
+                key={movie._id}
+                movie={movie}
+              />
+
+            )
+          )}
 
         </div>
+
       ) : (
+
         <div className="flex justify-center items-center py-20">
+
           <p className="text-gray-500">
             No shows available
           </p>
+
         </div>
+
       )}
 
       {/* ========================================= */}
@@ -148,6 +183,7 @@ const FeaturedSection = () => {
       {/* ========================================= */}
 
       {featuredMovies.length > 0 && (
+
         <div className="flex justify-center mt-8 mb-0">
 
           <button
@@ -155,14 +191,15 @@ const FeaturedSection = () => {
               navigate("/movies");
               scroll(0, 0);
             }}
-            className="px-10 py-3 text-sm bg-primary
-            hover:bg-primary-dull transition rounded-md
+            className="px-10 py-3 text-sm bg-primary 
+            hover:bg-primary-dull transition rounded-md 
             font-medium cursor-pointer"
           >
             Show more
           </button>
 
         </div>
+
       )}
 
     </div>

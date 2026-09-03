@@ -1,6 +1,7 @@
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
+import Profile from "./pages/Profile";
 import Home from "./pages/Home";
 import Movies from "./pages/Movies";
 import MovieDetail from "./pages/MovieDetail";
@@ -9,78 +10,62 @@ import MyBooking from "./pages/MyBooking";
 import Favorite from "./pages/Favorite";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import MovieCenter from "./pages/MovieCenter";
+import Payment from "./pages/Payment";
+import PaymentResult from "./pages/PaymentResult";
 
-import {
-  Routes,
-  Route,
-  useLocation,
-} from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// Admin pages
 import Dashboard from "./pages/admin/Dashboard";
 import AddShows from "./pages/admin/AddShows";
 import ListBookings from "./pages/admin/ListBookings";
 import ListShows from "./pages/admin/ListShows";
 import Layout from "./pages/admin/Layout";
 
-import { useAppContext } from "./context/AppContext";
-
-
-// ======================================================
-// APP
-// ======================================================
+import { useAuth } from "./context/AuthContext";
 
 const App = () => {
   const { pathname } = useLocation();
 
-  const isAdminRoute =
-    pathname.startsWith("/admin");
+  const { admin, loading } = useAuth();
 
-  const { user } = useAppContext();
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isAdmin = admin?.role === "admin";
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <p className="text-gray-400">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <>
-      {/* ==================================================
-          NAVBAR
-      ================================================== */}
-
       {!isAdminRoute && <Navbar />}
-
-
-      {/* ==================================================
-          ROUTES
-      ================================================== */}
 
       <Routes>
 
-        {/* HOME */}
-        <Route
-          path="/"
-          element={<Home />}
-        />
+        {/* ========================= */}
+        {/* PUBLIC PAGES */}
+        {/* ========================= */}
 
-        <Route
-          path="/home"
-          element={<Home />}
-        />
+        <Route path="/" element={<Home />} />
 
+        <Route path="/home" element={<Home />} />
 
-        {/* MOVIES */}
-        <Route
-          path="/movies"
-          element={<Movies />}
-        />
+        <Route path="/movies" element={<Movies />} />
 
         <Route
           path="/movies/:id"
           element={<MovieDetail />}
         />
 
+        {/* ========================= */}
+        {/* SEAT SELECTION */}
+        {/* ========================= */}
 
-        {/* SEAT LAYOUT */}
         <Route
           path="/movies/:id/:date"
           element={
@@ -90,8 +75,10 @@ const App = () => {
           }
         />
 
+        {/* ========================= */}
+        {/* USER PAGES */}
+        {/* ========================= */}
 
-        {/* MY BOOKINGS */}
         <Route
           path="/my-booking"
           element={
@@ -101,8 +88,6 @@ const App = () => {
           }
         />
 
-
-        {/* FAVORITES */}
         <Route
           path="/favorite"
           element={
@@ -112,47 +97,69 @@ const App = () => {
           }
         />
 
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* LOGIN */}
+        {/* ========================= */}
+        {/* AUTH */}
+        {/* ========================= */}
+
         <Route
           path="/login"
           element={<Login />}
         />
 
-
-        {/* SIGNUP */}
         <Route
           path="/signup"
           element={<Signup />}
         />
 
+        {/* ========================= */}
+        {/* PAYMENT */}
+        {/* ========================= */}
 
-        {/* MOVIE CENTERS */}
         <Route
-          path="/movie-center"
-          element={<MovieCenter />}
+          path="/payment/:bookingId"
+          element={
+            <ProtectedRoute>
+              <Payment />
+            </ProtectedRoute>
+          }
         />
 
+        <Route
+          path="/payment-result/:bookingId"
+          element={
+            <ProtectedRoute>
+              <PaymentResult />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* ==================================================
-            ADMIN ROUTES
-        ================================================== */}
+        {/* ========================= */}
+        {/* ADMIN */}
+        {/* ========================= */}
 
         <Route
           path="/admin/*"
           element={
-            user ? (
+            isAdmin ? (
               <Layout />
             ) : (
-              <div className="min-h-screen flex items-center justify-center text-white">
-                <p>
-                  Please login to access the admin dashboard.
+              <div className="min-h-screen bg-black text-white flex items-center justify-center">
+                <p className="text-gray-400 text-lg">
+                  Admin Access Required...
                 </p>
               </div>
             )
           }
         >
-
           <Route
             index
             element={<Dashboard />}
@@ -172,15 +179,30 @@ const App = () => {
             path="list-bookings"
             element={<ListBookings />}
           />
-
         </Route>
 
+        {/* ========================= */}
+        {/* 404 */}
+        {/* ========================= */}
+
+        <Route
+          path="*"
+          element={
+            <div className="min-h-screen bg-black text-white flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-4xl font-bold mb-3">
+                  404
+                </h1>
+
+                <p className="text-gray-400">
+                  Page not found
+                </p>
+              </div>
+            </div>
+          }
+        />
+
       </Routes>
-
-
-      {/* ==================================================
-          FOOTER
-      ================================================== */}
 
       {!isAdminRoute && <Footer />}
     </>

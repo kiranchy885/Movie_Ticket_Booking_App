@@ -1,39 +1,64 @@
 import express from "express";
 
 import {
-    getUserBookings,
-    updateFavorites,
-    getFavorites
+  loginUser,
+  signupUser,
+  getCurrentUser,
+  getMyBookings,
+  getFavorites,
+
 } from "../controllers/userController.js";
 
 import { protect } from "../middleWare/auth.js";
 
+const router = express.Router();
 
-const userRouter = express.Router();
+// =====================================================
+// SIGNUP
+// =====================================================
+
+router.post("/signup", signupUser);
+
+// =====================================================
+// LOGIN
+// =====================================================
+
+router.post("/login", loginUser);
+
+// =====================================================
+// CURRENT LOGGED-IN USER
+// =====================================================
+
+router.get("/me", protect, getCurrentUser);
+
+// =====================================================
+// GET FAVOURITES
+// =====================================================
+
+router.get("/favourites", protect, getFavorites);
+
+// =====================================================
+// TOGGLE FAVOURITE
+// =====================================================
+
+// =====================================================
+// ALTERNATIVE FAVORITE ENDPOINT
+// =====================================================
 
 
-// Get logged-in user's bookings
-userRouter.get(
-    "/bookings",
-    protect,
-    getUserBookings
+// =====================================================
+// CREATE BOOKING
+// =====================================================
+
+
+// =====================================================
+// GET USER BOOKINGS
+// =====================================================
+
+router.get(
+  "/bookings",
+  protect,
+  getMyBookings
 );
 
-
-// Add/remove favorite movie
-userRouter.post(
-    "/update-favorite",
-    protect,
-    updateFavorites
-);
-
-
-// Get favorite movies
-userRouter.get(
-    "/favorites",
-    protect,
-    getFavorites
-);
-
-
-export default userRouter;
+export default router;

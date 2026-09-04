@@ -1,57 +1,85 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
+
 import connectDB from "./configs/db.js";
+
+import userRouter from "./routes/userRoutes.js";
+import movieRouter from "./routes/movieRoutes.js";
 import showRouter from "./routes/showRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
-import userRouter from "./routes/userRoutes.js";
-import centerRouter from "./routes/centerRoutes.js";
 
 dotenv.config();
 
 const app = express();
 
-connectDB();
+// =====================================================
+// MIDDLEWARE
+// =====================================================
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
-// Routes
-app.use('/api/show', showRouter);
-app.use("/booking", bookingRouter)
-app.use('/api/admin', adminRouter)
-app.use('/api/center', centerRouter);
-app.use("/user",userRouter)
+// =====================================================
+// DATABASE
+// =====================================================
 
+connectDB();
+
+// =====================================================
+// TEST ROUTE
+// =====================================================
 
 app.get("/", (req, res) => {
-  res.send("API Running");
+  res.json({
+    success: true,
+    message: "Movie Ticket Booking API is running",
+  });
 });
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server started on port ${process.env.PORT || 3000}`);
+// =====================================================
+// API ROUTES
+// =====================================================
+
+app.use("/admin", adminRouter);
+
+// USER ROUTES
+app.use("/api/user", userRouter);
+
+// MOVIE ROUTES
+app.use("/api/movie", movieRouter);
+
+// SHOW ROUTES
+app.use("/api/show", showRouter);
+
+// BOOKING ROUTES
+app.use("/api/booking", bookingRouter);
+
+// =====================================================
+// 404 HANDLER
+// =====================================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+  });
 });
 
-// import express from 'express';
-// import cors from 'cors';
-// import 'dotenv/config';
-// import connectDB from './configs/db.js';
-// import { clerkMiddleware } from '@clerk/express'
-// import { inngest, functions } from './inngest/index.js';
-// import { serve }from "inngest/express";
+// =====================================================
+// SERVER
+// =====================================================
 
-// const app = express();
-// const port = 3000;
+const PORT = process.env.PORT || 5000;
 
-// await connectDB()
-
-// // Middleware
-// app.use(express.json())
-// app.use(cors())
-// app.use(clerkMiddleware())
-
-// //API Routes
-// app.get('/', (req, res)=> res.send('Server is Live!'))
-// app.use('/api/inngest', serve({ client: inngest, functions }))
-
-
-// app.listen(port, ()=> console.log(`Server listening at http://localhost:${port}`));
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+  console.log(`Server URL: http://localhost:${PORT}`);
+});

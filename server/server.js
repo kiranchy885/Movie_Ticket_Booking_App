@@ -9,6 +9,7 @@ import movieRouter from "./routes/movieRoutes.js";
 import showRouter from "./routes/showRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
+import analyticsRouter from "./routes/analyticsRoutes.js";
 
 dotenv.config();
 
@@ -48,19 +49,24 @@ app.get("/", (req, res) => {
 // API ROUTES
 // =====================================================
 
+// ADMIN
 app.use("/admin", adminRouter);
 
-// USER ROUTES
-app.use("/api/user", userRouter);
+// USER
+app.use("/user", userRouter);
 
-// MOVIE ROUTES
-app.use("/api/movie", movieRouter);
+// MOVIE
+app.use("/movie", movieRouter);
 
-// SHOW ROUTES
-app.use("/api/show", showRouter);
+// SHOW
+app.use("/show", showRouter);
 
-// BOOKING ROUTES
-app.use("/api/booking", bookingRouter);
+// BOOKING
+app.use("/booking", bookingRouter);
+
+// Analytics
+app.use("/api/analytics", analyticsRouter);
+
 
 // =====================================================
 // 404 HANDLER

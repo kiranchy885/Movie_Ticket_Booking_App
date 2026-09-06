@@ -1,3 +1,5 @@
+import React from "react";
+
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
@@ -16,13 +18,14 @@ import { Routes, Route, useLocation } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
-// Admin
+// Admin pages
 import AdminLogin from "./pages/admin/AdminLogin";
 import Dashboard from "./pages/admin/Dashboard";
 import AddShows from "./pages/admin/AddShows";
 import ListBookings from "./pages/admin/ListBookings";
 import ListShows from "./pages/admin/ListShows";
 import Layout from "./pages/admin/Layout";
+import ResultAnalysis from "./pages/admin/ResultAnalysis";
 
 const App = () => {
   const { pathname } = useLocation();
@@ -31,14 +34,13 @@ const App = () => {
 
   return (
     <>
-      {/* User Navbar */}
       {!isAdminRoute && <Navbar />}
 
       <Routes>
 
         {/* =========================
-            USER ROUTES
-        ========================= */}
+            PUBLIC USER ROUTES
+        ========================== */}
 
         <Route path="/" element={<Home />} />
 
@@ -50,6 +52,21 @@ const App = () => {
           path="/movies/:id"
           element={<MovieDetail />}
         />
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        <Route
+          path="/signup"
+          element={<Signup />}
+        />
+
+
+        {/* =========================
+            PROTECTED USER ROUTES
+        ========================== */}
 
         <Route
           path="/movies/:id/:date"
@@ -88,16 +105,6 @@ const App = () => {
         />
 
         <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        <Route
-          path="/signup"
-          element={<Signup />}
-        />
-
-        <Route
           path="/payment/:bookingId"
           element={
             <ProtectedRoute>
@@ -109,8 +116,7 @@ const App = () => {
 
         {/* =========================
             ADMIN LOGIN
-            PUBLIC ROUTE
-        ========================= */}
+        ========================== */}
 
         <Route
           path="/admin/login"
@@ -119,68 +125,8 @@ const App = () => {
 
 
         {/* =========================
-            ADMIN DASHBOARD
-        ========================= */}
-
-        <Route
-          path="/admin/dashboard"
-          element={<Layout />}
-        >
-          <Route
-            index
-            element={<Dashboard />}
-          />
-        </Route>
-
-
-        {/* =========================
-            ADMIN ADD SHOWS
-        ========================= */}
-
-        <Route
-          path="/admin/add-shows"
-          element={<Layout />}
-        >
-          <Route
-            index
-            element={<AddShows />}
-          />
-        </Route>
-
-
-        {/* =========================
-            ADMIN LIST SHOWS
-        ========================= */}
-
-        <Route
-          path="/admin/list-shows"
-          element={<Layout />}
-        >
-          <Route
-            index
-            element={<ListShows />}
-          />
-        </Route>
-
-
-        {/* =========================
-            ADMIN LIST BOOKINGS
-        ========================= */}
-
-        <Route
-          path="/admin/list-bookings"
-          element={<Layout />}
-        >
-          <Route
-            index
-            element={<ListBookings />}
-          />
-        </Route>
-
-
-        {/* =========================
-            ADMIN ROOT
-        ========================= */}
+            ADMIN ROUTES
+        ========================== */}
 
         <Route
           path="/admin"
@@ -192,25 +138,73 @@ const App = () => {
           />
         </Route>
 
+        <Route
+          path="/admin/dashboard"
+          element={<Layout />}
+        >
+          <Route
+            index
+            element={<Dashboard />}
+          />
+        </Route>
+
+        <Route
+          path="/admin/add-shows"
+          element={<Layout />}
+        >
+          <Route
+            index
+            element={<AddShows />}
+          />
+        </Route>
+
+        <Route
+          path="/admin/list-shows"
+          element={<Layout />}
+        >
+          <Route
+            index
+            element={<ListShows />}
+          />
+        </Route>
+
+        <Route
+          path="/admin/list-bookings"
+          element={<Layout />}
+        >
+          <Route
+            index
+            element={<ListBookings />}
+          />
+        </Route>
+
+        <Route
+          path="/admin/result-analysis"
+          element={<Layout />}
+        >
+          <Route
+            index
+            element={<ResultAnalysis />}
+          />
+        </Route>
+
 
         {/* =========================
             404
-        ========================= */}
+        ========================== */}
 
         <Route
           path="*"
           element={
-            <div className="min-h-screen bg-black text-white flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-black text-white">
               <div className="text-center">
-
-                <h1 className="text-5xl font-bold mb-4">
+                <h1 className="text-5xl font-bold">
                   404
                 </h1>
 
-                <p className="text-gray-400">
+                <p className="text-gray-400 mt-3">
                   Page not found
                 </p>
-
               </div>
             </div>
           }
@@ -218,7 +212,6 @@ const App = () => {
 
       </Routes>
 
-      {/* User Footer */}
       {!isAdminRoute && <Footer />}
     </>
   );

@@ -1,427 +1,620 @@
-
 import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-hot-toast";
+
 import BlurCircle from "../components/BlurCircle";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import Loading from "../components/Loading";
+import { useAuth } from "../context/AuthContext";
+
+
+// =====================================================
+// HELPERS
+// =====================================================
+
+const formatDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+
+    const d = new Date(dateStr);
+
+    if (isNaN(d)) return "Invalid Date";
+
+    return d.toLocaleString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+};
+
+
+const formatDuration = (minutes) => {
+    if (!minutes) return "N/A";
+
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+
+    return hrs > 0
+        ? `${hrs}h ${mins}m`
+        : `${mins}m`;
+};
+
+
+// =====================================================
+// MAIN COMPONENT
+// =====================================================
 
 const MyBooking = () => {
-  const [bookings, setBookings] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // =========================================
-  // FETCH USER BOOKINGS FROM MONGODB
-  // =========================================
-
-  const getMyBookings = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        "http://localhost:3000/booking/my",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-
-            ...(token && {
-              Authorization: `Bearer ${token}`,
-            }),
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      console.log("Bookings from MongoDB:", data);
-
-      if (data.success) {
-        setBookings(data.bookings || []);
-      } else {
-        setBookings([]);
-        console.error(data.message);
-      }
-    } catch (error) {
-      console.error(
-        "Error fetching bookings:",
-        error
-      );
-
-      setBookings([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getMyBookings();
-  }, []);
-
-  // =========================================
-  // PAY FOR BOOKING
-  // =========================================
-
-  const handlePay = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        `http://localhost:3000/booking/pay/${id}`,
-        {
-          method: "PUT",
-
-          headers: {
-            "Content-Type": "application/json",
-
-            ...(token && {
-              Authorization: `Bearer ${token}`,
-            }),
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (!data.success) {
-        alert(
-          data.message ||
-            "Payment failed"
-        );
-
-        return;
-      }
-
-      // Update payment status in UI
-      setBookings((prev) =>
-        prev.map((booking) =>
-          booking._id === id
-            ? {
-                ...booking,
-                isPaid: true,
-              }
-            : booking
-        )
-      );
-    } catch (error) {
-      console.error(
-        "Payment error:",
-        error
-      );
 
-      alert(
-        "Unable to process payment."
-      );
-    }
-  };
+    const navigate = useNavigate();
 
-  // =========================================
-  // LOADING
-  // =========================================
+    const { isLoggedIn } = useAuth();
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[80vh]">
-        <p className="text-gray-400">
-          Loading bookings...
-        </p>
-      </div>
-    );
-  }
+    const [searchParams] = useSearchParams();
 
-  // =========================================
-  // PAGE
-  // =========================================
+    const [bookings, setBookings] = useState([]);
 
-  return (
-    <div className="relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh]">
+    const [loading, setLoading] = useState(true);
 
-      <BlurCircle
-        top="100px"
-        left="100px"
-      />
+    const [paying, setPaying] = useState(null);
 
-      <BlurCircle
-        bottom="0px"
-        left="600px"
-      />
 
-      {/* HEADER */}
+    // =====================================================
+    // FETCH MY BOOKINGS
+    // =====================================================
 
-      <h1 className="text-2xl font-semibold mb-6">
-        My Bookings
-      </h1>
+    const fetchBookings = async () => {
 
+        try {
 
-      {/* NO BOOKINGS */}
+            setLoading(true);
 
-      {bookings.length === 0 ? (
+            const token =
+                localStorage.getItem("userToken") ||
+                localStorage.getItem("token");
 
-        <p className="text-gray-400">
-          No bookings found.
-        </p>
 
-      ) : (
+            if (!token) {
 
-        <div className="space-y-4 max-w-5xl">
+                toast.error(
+                    "Please log in to view your bookings."
+                );
 
-          {bookings.map((item) => {
+                setBookings([]);
 
-            // =================================
-            // POPULATED SHOW
-            // =================================
+                return;
+            }
 
-            const show = item.show;
 
-            // =================================
-            // POPULATED MOVIE
-            // =================================
-
-            const movie = show?.movie;
-
-
-            // =================================
-            // DATE & TIME FROM DATABASE
-            // =================================
-
-            const showDateTime =
-              show?.showDateTime
-                ? new Date(
-                    show.showDateTime
-                  )
-                : null;
-
-
-            const date =
-              showDateTime
-                ? showDateTime.toLocaleDateString(
-                    "en-CA"
-                  )
-                : "N/A";
-
-
-            const time =
-              showDateTime
-                ? showDateTime.toLocaleTimeString(
-                    "en-US",
-                    {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    }
-                  )
-                : "N/A";
-
-
-            // =================================
-            // MOVIE INFORMATION
-            // =================================
-
-            const movieTitle =
-              movie?.title ||
-              "Unknown Movie";
-
-
-            const poster =
-              movie?.poster_path;
-
-
-            const runtime =
-              movie?.runtime;
-
-
-            // =================================
-            // TICKET COUNT
-            // =================================
-
-            const bookedSeats =
-              item.bookedSeats || [];
-
-
-            const ticketCount =
-              bookedSeats.length;
-
-
-            return (
-
-              <div
-                key={item._id}
-                className="
-                  flex
-                  flex-col
-                  md:flex-row
-                  justify-between
-                  gap-6
-                  p-4
-                  rounded-lg
-                  border
-                  border-primary/20
-                  bg-primary/10
-                "
-              >
-
-                {/* ================================= */}
-                {/* LEFT SIDE */}
-                {/* ================================= */}
-
-                <div className="flex gap-4">
-
-                  {/* MOVIE POSTER */}
-
-                  {poster ? (
-
-                    <img
-                      src={poster}
-                      alt={movieTitle}
-                      className="
-                        w-28
-                        h-40
-                        object-cover
-                        rounded-md
-                      "
-                    />
-
-                  ) : (
-
-                    <div
-                      className="
-                        w-28
-                        h-40
-                        bg-gray-800
-                        rounded-md
-                        flex
-                        items-center
-                        justify-center
-                        text-xs
-                        text-gray-500
-                      "
-                    >
-                      No Image
-                    </div>
-
-                  )}
-
-
-                  {/* MOVIE DETAILS */}
-
-                  <div className="flex flex-col justify-between">
-
-                    <div>
-
-                      <h2 className="text-lg font-semibold">
-                        {movieTitle}
-                      </h2>
-
-
-                      {/* DATABASE DATE */}
-
-                      <p className="text-sm text-gray-400 mt-1">
-                        📅 {date}
-                      </p>
-
-
-                      {/* DATABASE TIME */}
-
-                      <p className="text-sm text-gray-400">
-                        ⏰ {time}
-                      </p>
-
-
-                      {/* DATABASE RUNTIME */}
-
-                      <p className="text-sm text-gray-400 mt-1">
-                        ⏱ Duration:{" "}
-                        {runtime
-                          ? `${runtime} minutes`
-                          : "N/A"}
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-
-                {/* ================================= */}
-                {/* RIGHT SIDE */}
-                {/* ================================= */}
-
-                <div className="flex flex-col items-end justify-between">
-
-                  <div className="text-right">
-
-                    {/* AMOUNT */}
-
-                    <p className="text-xl font-semibold">
-                      Rs.{" "}
-                      {item.amount ||
-                        show?.showPrice ||
-                        0}
-                    </p>
-
-
-                    {/* TOTAL TICKETS */}
-
-                    <p className="text-sm text-gray-400">
-                      Total Tickets:{" "}
-                      {ticketCount}
-                    </p>
-
-
-                    {/* SEATS */}
-
-                    <p className="text-sm text-gray-400">
-                      Seats:{" "}
-                      {bookedSeats.length > 0
-                        ? bookedSeats.join(", ")
-                        : "N/A"}
-                    </p>
-
-                  </div>
-
-
-                  {/* PAYMENT STATUS */}
-
-                  {!item.isPaid ? (
-
-                    <button
-                      onClick={() =>
-                        handlePay(
-                          item._id
-                        )
-                      }
-                      className="
-                        mt-3
-                        bg-primary
-                        px-4
-                        py-1.5
-                        text-sm
-                        rounded-full
-                        font-medium
-                        hover:bg-primary-dull
-                        transition
-                      "
-                    >
-                      Pay Now
-                    </button>
-
-                  ) : (
-
-                    <span className="text-green-400 font-medium mt-3">
-                      Paid ✔
-                    </span>
-
-                  )}
-
-                </div>
-
-              </div>
-
+            const response = await axios.get(
+                "http://localhost:5000/booking/my",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
-          })}
+
+
+            if (response.data?.success) {
+
+                setBookings(
+                    response.data.bookings || []
+                );
+
+            } else {
+
+                toast.error(
+                    response.data?.message ||
+                    "Failed to load bookings."
+                );
+
+                setBookings([]);
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Fetch bookings error:",
+                error
+            );
+
+            toast.error(
+                error?.response?.data?.message ||
+                "Unable to fetch bookings."
+            );
+
+            setBookings([]);
+
+        } finally {
+
+            setLoading(false);
+        }
+    };
+
+
+    // =====================================================
+    // STRIPE PAYMENT
+    // =====================================================
+
+    const handlePayNow = async (bookingId) => {
+
+        try {
+
+            setPaying(bookingId);
+
+
+            const token =
+                localStorage.getItem("userToken") ||
+                localStorage.getItem("token");
+
+
+            if (!token) {
+
+                toast.error(
+                    "Please log in to proceed."
+                );
+
+                setPaying(null);
+
+                return;
+            }
+
+
+            const response = await axios.post(
+
+                `http://localhost:5000/booking/stripe/create-checkout-session/${bookingId}`,
+
+                {},
+
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+
+            if (
+                response.data?.success &&
+                response.data?.payment_url
+            ) {
+
+                // Redirect to Stripe Checkout
+                window.location.href =
+                    response.data.payment_url;
+
+            } else {
+
+                toast.error(
+                    response.data?.message ||
+                    "Failed to initiate Stripe payment."
+                );
+
+                setPaying(null);
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Stripe payment error:",
+                error
+            );
+
+            toast.error(
+                error?.response?.data?.message ||
+                "Failed to initiate Stripe payment."
+            );
+
+            setPaying(null);
+        }
+    };
+
+
+    // =====================================================
+    // VERIFY STRIPE PAYMENT AFTER REDIRECT
+    // =====================================================
+
+    useEffect(() => {
+
+        const payment =
+            searchParams.get("payment");
+
+        const sessionId =
+            searchParams.get("session_id");
+
+
+        // -------------------------------------------------
+        // SUCCESS
+        // -------------------------------------------------
+
+        if (
+            payment === "success" &&
+            sessionId
+        ) {
+
+            const verifyPayment = async () => {
+
+                try {
+
+                    const token =
+                        localStorage.getItem("userToken") ||
+                        localStorage.getItem("token");
+
+
+                    if (!token) {
+
+                        toast.error(
+                            "Please log in to verify payment."
+                        );
+
+                        return;
+                    }
+
+
+                    const response =
+                        await axios.post(
+
+                            "http://localhost:5000/booking/stripe/verify",
+
+                            {
+                                sessionId,
+                            },
+
+                            {
+                                headers: {
+                                    Authorization:
+                                        `Bearer ${token}`,
+                                },
+                            }
+                        );
+
+
+                    if (
+                        response.data?.success
+                    ) {
+
+                        toast.success(
+                            "Payment successful!"
+                        );
+
+                        await fetchBookings();
+
+
+                        // Remove payment query parameters
+                        navigate(
+                            "/my-booking",
+                            {
+                                replace: true,
+                            }
+                        );
+
+                    } else {
+
+                        toast.error(
+                            response.data?.message ||
+                            "Payment verification failed."
+                        );
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Stripe verification error:",
+                        error
+                    );
+
+                    toast.error(
+                        error?.response?.data?.message ||
+                        "Payment verification failed."
+                    );
+                }
+            };
+
+
+            verifyPayment();
+        }
+
+
+        // -------------------------------------------------
+        // CANCELLED
+        // -------------------------------------------------
+
+        else if (
+            payment === "cancelled"
+        ) {
+
+            toast.error(
+                "Payment was cancelled."
+            );
+
+
+            navigate(
+                "/my-booking",
+                {
+                    replace: true,
+                }
+            );
+        }
+
+    }, [searchParams]);
+
+
+    // =====================================================
+    // LOAD BOOKINGS
+    // =====================================================
+
+    useEffect(() => {
+
+        if (!isLoggedIn()) {
+
+            navigate("/login");
+
+            return;
+        }
+
+
+        fetchBookings();
+
+    }, []);
+
+
+    // =====================================================
+    // LOADING
+    // =====================================================
+
+    if (loading) {
+
+        return (
+
+            <div className="min-h-screen bg-black text-white flex flex-col">
+
+                <Navbar />
+
+                <main className="flex-1 flex items-center justify-center">
+
+                    <Loading />
+
+                </main>
+
+                <Footer />
+
+            </div>
+        );
+    }
+
+
+    // =====================================================
+    // RENDER
+    // =====================================================
+
+    return (
+
+        <div className="min-h-screen bg-black text-white flex flex-col">
+
+            <Navbar />
+
+
+            <main className="flex-1 relative overflow-hidden px-4 py-10 md:px-16 lg:px-40">
+
+                <BlurCircle
+                    top="100px"
+                    left="100px"
+                />
+
+                <BlurCircle
+                    bottom="0px"
+                    left="600px"
+                />
+
+
+                <h1 className="text-3xl font-bold mb-8">
+                    My Bookings
+                </h1>
+
+
+                {bookings.length === 0 ? (
+
+                    <div className="border border-primary/25 bg-primary/10 rounded-lg p-10 text-center">
+
+                        <h2 className="text-xl font-semibold">
+                            No bookings yet
+                        </h2>
+
+                        <p className="text-gray-400 mt-3">
+                            You haven't made any movie
+                            bookings yet.
+                        </p>
+
+                        <p className="text-gray-500 text-sm mt-2">
+                            Your bookings will appear
+                            here after you book a movie.
+                        </p>
+
+                    </div>
+
+                ) : (
+
+                    <div className="space-y-6 max-w-4xl">
+
+                        {bookings.map((booking) => (
+
+                            <div
+                                key={booking._id}
+                                className="bg-gray-900/50 border border-gray-700 rounded-xl p-4 flex flex-col md:flex-row gap-6 hover:border-primary/30 transition"
+                            >
+
+                                {/* POSTER */}
+
+                                <div className="shrink-0">
+
+                                    {booking.poster ? (
+
+                                        <img
+                                            src={booking.poster}
+                                            alt={
+                                                booking.movieName ||
+                                                "Movie"
+                                            }
+                                            className="w-28 h-40 object-cover rounded-lg"
+                                        />
+
+                                    ) : (
+
+                                        <div className="w-28 h-40 bg-gray-800 rounded-lg flex items-center justify-center text-gray-500 text-sm">
+                                            No Poster
+                                        </div>
+                                    )}
+
+                                </div>
+
+
+                                {/* DETAILS */}
+
+                                <div className="flex-1 flex flex-col justify-between">
+
+                                    <div>
+
+                                        <h2 className="text-xl font-semibold">
+
+                                            {booking.movieName ||
+                                                "Unknown Movie"}
+
+                                        </h2>
+
+
+                                        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-400 mt-1">
+
+                                            <span>
+                                                {formatDuration(
+                                                    booking.runtime
+                                                )}
+                                            </span>
+
+                                            <span>
+                                                •
+                                            </span>
+
+                                            <span>
+                                                {formatDate(
+                                                    booking.showDateTime
+                                                )}
+                                            </span>
+
+                                        </div>
+
+
+                                        <div className="mt-3 text-sm text-gray-400">
+
+                                            <span>
+                                                Total Seats:{" "}
+                                                {booking.bookedSeats
+                                                    ?.length || 0}
+                                            </span>
+
+                                            <span className="ml-4">
+                                                Seats:{" "}
+                                                {booking.bookedSeats?.join(
+                                                    ", "
+                                                ) || "None"}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* PRICE & PAYMENT */}
+
+                                    <div className="flex flex-wrap items-center justify-between mt-4 pt-4 border-t border-gray-700">
+
+                                        <div>
+
+                                            <p className="text-xs text-gray-400">
+                                                Total Amount
+                                            </p>
+
+                                            <p className="text-2xl font-bold text-primary">
+
+                                                Rs.{" "}
+                                                {booking.amount || 0}
+
+                                            </p>
+
+                                        </div>
+
+
+                                        <div>
+
+                                            {booking.isPaid ? (
+
+                                                <span className="px-4 py-2 bg-green-600/20 text-green-400 border border-green-600/30 rounded-lg text-sm font-medium">
+
+                                                    Paid ✓
+
+                                                </span>
+
+                                            ) : (
+
+                                                <button
+                                                    onClick={() =>
+                                                        handlePayNow(
+                                                            booking._id
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        paying ===
+                                                        booking._id
+                                                    }
+                                                    className="px-6 py-2 bg-primary hover:bg-primary/80 disabled:opacity-50 rounded-lg text-white font-semibold transition flex items-center gap-2"
+                                                >
+
+                                                    {paying ===
+                                                    booking._id ? (
+
+                                                        "Redirecting to Stripe..."
+
+                                                    ) : (
+
+                                                        <>
+                                                            Pay with Stripe
+
+                                                            <span className="text-xs">
+                                                                →
+                                                            </span>
+                                                        </>
+                                                    )}
+
+                                                </button>
+                                            )}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        ))}
+
+                    </div>
+                )}
+
+            </main>
+
+
+            <Footer />
 
         </div>
-
-      )}
-
-    </div>
-  );
+    );
 };
+
 
 export default MyBooking;

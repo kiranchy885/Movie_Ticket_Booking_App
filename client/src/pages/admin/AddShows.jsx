@@ -1,12 +1,13 @@
 import React, {
     useEffect,
-    useState
+    useState,
+    useCallback,
 } from "react";
 
 import Title from "../../components/admin/Title";
 import Loading from "../../components/Loading";
 
-import { dummyShowsData } from "../../assets/assets";
+import { dummyShowsData, dummyTheaters } from "../../assets/assets";
 
 import {
     StarIcon,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { kConverter } from "../../lib/kConverter";
+import { useRefresh } from "../../context/RefreshContext";
 
 
 const AddShows = () => {
@@ -23,7 +25,12 @@ const AddShows = () => {
         import.meta.env.VITE_CURRENCY ||
         "Rs.";
 
+    // -------- theater states --------
+    const [theaters, setTheaters] = useState([]);
+    const [selectedTheater, setSelectedTheater] = useState("");
+    const [loadingTheaters, setLoadingTheaters] = useState(true);
 
+    // -------- existing states --------
     const [
         nowPlayingMovies,
         setNowPlayingMovies
@@ -65,20 +72,83 @@ const AddShows = () => {
         setAddingShow
     ] = useState(false);
 
+    // -------- refresh hook --------
+    const { refresh } = useRefresh();
+
+    // =====================================================
+    // LOAD THEATERS
+    // =====================================================
+    const fetchTheaters = useCallback(async () => {
+    try {
+        setLoadingTheaters(true);
+
+        const token =
+            localStorage.getItem("userToken") ||
+            localStorage.getItem("token");
+
+        const response = await fetch(
+            "http://localhost:5000/theater/all",
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        const data = await response.json();
+
+        console.log(
+            "Theater API Status:",
+            response.status
+        );
+
+        console.log(
+            "Theater API Result:",
+            data
+        );
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+            throw new Error(
+                data.message ||
+                "Failed to fetch theaters"
+            );
+        }
+
+        const realTheaters =
+            Array.isArray(data.theaters)
+                ? data.theaters
+                : [];
+
+        setTheaters(realTheaters);
+
+    } catch (error) {
+        console.error(
+            "Error fetching theaters:",
+            error
+        );
+
+        setTheaters([]);
+
+    } finally {
+        setLoadingTheaters(false);
+    }
+}, []);
 
     // =====================================================
     // LOAD MOVIES
     // =====================================================
 
     useEffect(() => {
-
         setNowPlayingMovies(
             dummyShowsData || []
         );
-
         setLoading(false);
 
-    }, []);
+        fetchTheaters();
+    }, [fetchTheaters]);
 
 
     // =====================================================
@@ -205,11 +275,23 @@ const AddShows = () => {
 
 
     // =====================================================
-    // ADD SHOW
+    // ADD SHOW (UPDATED: includes theaterCity & theaterAddress)
     // =====================================================
 
     const handleAddShow =
         async () => {
+
+            // =============================================
+            // CHECK THEATER
+            // =============================================
+            if (!selectedTheater) {
+
+                alert(
+                    "Please select a theater."
+                );
+
+                return;
+            }
 
             // =============================================
             // CHECK MOVIE
@@ -264,9 +346,16 @@ const AddShows = () => {
 
                 setAddingShow(true);
 
+                // -------- get theater details --------
+                const theater = theaters.find((t) => String(t._id) === selectedTheater);
+                const theaterName = theater?.name || "Unknown Theater";
+                const theaterLat = theater?.latitude ?? 0;
+                const theaterLng = theater?.longitude ?? 0;
+                const theaterCity = theater?.city || "";
+                const theaterAddress = theater?.address || "";
 
                 // =============================================
-                // SHOW DATA
+                // SHOW DATA (updated with city and address)
                 // =============================================
 
                 const showData = {
@@ -278,7 +367,15 @@ const AddShows = () => {
                         Number(showPrice),
 
                     dateTimes:
-                        dateTimeSelection
+                        dateTimeSelection,
+
+                    // -------- theater fields --------
+                    theaterId: selectedTheater,
+                    theaterName: theaterName,
+                    theaterLat: theaterLat,
+                    theaterLng: theaterLng,
+                    theaterCity: theaterCity,      // <-- NEW
+                    theaterAddress: theaterAddress, // <-- NEW
 
                 };
 
@@ -293,6 +390,7 @@ const AddShows = () => {
                 // SEND TO BACKEND
                 // =============================================
 
+                const token = localStorage.getItem("userToken") || localStorage.getItem("token");
                 const response =
                     await fetch(
                         "http://localhost:5000/show/add",
@@ -301,10 +399,9 @@ const AddShows = () => {
                             method: "POST",
 
                             headers: {
-
                                 "Content-Type":
-                                    "application/json"
-
+                                    "application/json",
+                                Authorization: `Bearer ${token}`,
                             },
 
                             body:
@@ -354,11 +451,14 @@ const AddShows = () => {
                     "Movie and show added successfully!"
                 );
 
+                // -------- trigger global refresh --------
+                refresh();
 
                 // =============================================
                 // CLEAR FORM
                 // =============================================
 
+                setSelectedTheater("");
                 setSelectedMovie(null);
 
                 setShowPrice("");
@@ -393,7 +493,7 @@ const AddShows = () => {
     // LOADING
     // =====================================================
 
-    if (loading) {
+    if (loading || loadingTheaters) {
 
         return <Loading />;
     }
@@ -875,6 +975,40 @@ const AddShows = () => {
 
             )}
 
+            {/* ================================================= */}
+            {/* THEATER SELECTION */}
+            {/* ================================================= */}
+            <div className="mt-6">
+                <label className="block text-sm font-medium mb-2">
+                    Select Theater
+                </label>
+                <select
+                    value={selectedTheater}
+                    onChange={(e) => setSelectedTheater(e.target.value)}
+                    className="
+                        w-full max-w-md
+                        outline-none
+                        border border-gray-600
+                        p-2
+                        rounded-md
+                        bg-gray-900
+                        text-white
+                    "
+                >
+                    <option value="">-- Select a theater --</option>
+                    {theaters.map((theater) => (
+                        <option key={theater._id} value={String(theater._id)}>
+                            {theater.name} - {theater.city || theater.address || "Location"}
+                            {theater.latitude && theater.longitude && ` (${theater.latitude}, ${theater.longitude})`}
+                        </option>
+                    ))}
+                </select>
+                {theaters.length === 0 && (
+                    <p className="text-yellow-500 text-sm mt-1">
+                        No theaters available. Please add a theater first.
+                    </p>
+                )}
+            </div>
 
             {/* ================================================= */}
             {/* ADD SHOW */}
@@ -886,7 +1020,7 @@ const AddShows = () => {
                     handleAddShow
                 }
                 disabled={
-                    addingShow
+                    addingShow || theaters.length === 0
                 }
                 className={`
                     bg-primary
@@ -897,7 +1031,7 @@ const AddShows = () => {
                     rounded
                     transition-all
                     ${
-                        addingShow
+                        addingShow || theaters.length === 0
                             ? "opacity-50 cursor-not-allowed"
                             : "hover:bg-primary/90 cursor-pointer"
                     }
@@ -909,6 +1043,12 @@ const AddShows = () => {
                     : "Add Show"}
 
             </button>
+
+            {theaters.length === 0 && (
+                <p className="text-yellow-500 text-sm mt-2">
+                    Please add a theater first before adding shows.
+                </p>
+            )}
 
         </>
     );

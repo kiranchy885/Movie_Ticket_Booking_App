@@ -1031,7 +1031,7 @@ const SeatLayout = () => {
                                                     }`}
                                                 >
 
-                                                    <ClockIcon className="w-4 h-4 flex-shrink-0" />
+                                                    <ClockIcon className="w-4 h-4 shrink-0" />
 
                                                     <div>
 
@@ -1104,7 +1104,7 @@ const SeatLayout = () => {
 
                                     <div className="w-full overflow-x-auto pb-3">
 
-                                        <div className="min-w-[650px] flex flex-col items-center gap-4">
+                                        <div className="min-w-162.5 flex flex-col items-center gap-4">
 
                                             {/* A - B */}
 

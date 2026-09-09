@@ -1,33 +1,57 @@
 import express from "express";
-
 import {
+    addShow,
+    getAllShows,
     getShow,
-    searchMovies, //new
-    getMovies,// new
     getUniqueShows,
     getNowShowingMovies,
+    getMovieById,
+    searchMovies,
+    getShowsByTheater,
+    deleteShow, // Import delete function
 } from "../controllers/showController.js";
 
 const router = express.Router();
 
-// GET MOVIES
-router.get("/all", getMovies);
+// =====================================================
+// STATIC ROUTES (must be before dynamic routes)
+// =====================================================
 
-// SEARCH
-router.get("/search", searchMovies);
-
-// Get now-playing movies
+// NOW SHOWING MOVIES
 router.get("/now-playing", getNowShowingMovies);
 
-// Get all shows
+// ALL SHOWS
+router.get("/all", getAllShows);
 
-// Get unique movie IDs
+// UNIQUE SHOW MOVIES
 router.get("/unique", getUniqueShows);
 
-// Add a new show
+// SEARCH MOVIES (for navbar)
+router.get("/search", searchMovies);
 
-// Get shows for one movie
-// IMPORTANT: Keep this LAST
+// =====================================================
+// PROTECTED ROUTE (Admin only)
+// =====================================================
+router.post("/add", addShow);
+
+// =====================================================
+// GET SINGLE MOVIE BY ID (for favourites fallback)
+// =====================================================
+router.get("/movie/:id", getMovieById);
+
+// =====================================================
+// DELETE SHOW ROUTE
+// =====================================================
+router.delete("/:id", deleteShow);
+
+router.get(
+    "/theater/:theaterId",
+    getShowsByTheater
+);
+// =====================================================
+// DYNAMIC ROUTE – MUST BE LAST
+// =====================================================
 router.get("/:movieId", getShow);
+
 
 export default router;

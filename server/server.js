@@ -4,17 +4,21 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 
-import connectDB from "./configs/db.js";
-
+import movieRoutes from "./routes/movieRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import showRouter from "./routes/showRoutes.js";
 import bookingRouter from "./routes/bookingRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import analyticsRouter from "./routes/analyticsRoutes.js";
 import theaterRouter from "./routes/theaterRoutes.js";
+import recommendationRouter from "./routes/recommendationRoutes.js";
 
-// -------- NEW: import seedTheaters from theater controller --------
+import connectDB from "./configs/db.js";
+
 import { seedTheaters } from "./controllers/theaterController.js";
+
+// Reminder scheduler — IMPORT ONLY ONCE
+import { startReminderScheduler } from "./services/reminderService.js";
 
 dotenv.config();
 
@@ -34,6 +38,7 @@ app.use(
 // =====================================================
 // JSON
 // =====================================================
+
 app.use(express.json());
 
 // =====================================================
@@ -80,14 +85,40 @@ io.on("connection", (socket) => {
 
 connectDB()
     .then(async () => {
-        console.log("MongoDB connected successfully");
+        console.log(
+            "MongoDB connected successfully"
+        );
+
+        // -------------------------------------------------
+        // Seed theaters
+        // -------------------------------------------------
 
         try {
             await seedTheaters();
-            console.log("Theater seed check completed");
+
+            console.log(
+                "🎬 Theater seed check completed"
+            );
         } catch (error) {
             console.error(
-                "Theater seed failed:",
+                "❌ Theater seed error:",
+                error.message
+            );
+        }
+
+        // -------------------------------------------------
+        // Start reminder scheduler
+        // -------------------------------------------------
+
+        try {
+            startReminderScheduler();
+
+            console.log(
+                "⏰ Reminder scheduler started successfully"
+            );
+        } catch (error) {
+            console.error(
+                "❌ Reminder scheduler error:",
                 error.message
             );
         }
@@ -100,23 +131,41 @@ connectDB()
 
         process.exit(1);
     });
+
 // =====================================================
 // ROUTES
 // =====================================================
 
+// User routes
 app.use("/user", userRouter);
 
+// Show routes
 app.use("/show", showRouter);
 
+// Booking routes
 app.use("/booking", bookingRouter);
 
+// Admin routes
 app.use("/admin", adminRouter);
 
+// Theater routes
 app.use("/theater", theaterRouter);
 
+// Movie routes
+app.use("/", movieRoutes);
+
+// Analytics routes
 app.use(
     "/api/analytics",
     analyticsRouter
+);
+
+// Recommendation routes
+// Frontend should call:
+// http://localhost:5000/api/recommendations
+app.use(
+    "/api/recommendations",
+    recommendationRouter
 );
 
 // =====================================================
@@ -158,8 +207,7 @@ app.use(
 
         res.status(500).json({
             success: false,
-            message:
-                "Internal server error.",
+            message: "Internal server error.",
         });
     }
 );
@@ -168,8 +216,7 @@ app.use(
 // SERVER START
 // =====================================================
 
-const PORT =
-    process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
     console.log(

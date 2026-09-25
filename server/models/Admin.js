@@ -1,36 +1,48 @@
 import mongoose from "mongoose";
 
 const adminSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    {
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+            lowercase: true,
+        },
+        password: {
+            type: String,
+            required: true,
+        },
+        image: {
+            type: String,
+            default: "",
+        },
+        role: {
+            type: String,
+            default: "admin",
+        },
 
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
+        // ----- NEW OTP FIELDS (for admin registration) -----
+        verified: {
+            type: Boolean,
+            default: false,
+        },
+        otp: {
+            type: String,
+            default: null,
+        },
+        otpExpires: {
+            type: Date,
+            default: null,
+        },
     },
-
-    password: {
-      type: String,
-      required: true,
-    },
-
-    role: {
-      type: String,
-      default: "admin",
-    },
-  },
-  {
-    timestamps: true,
-  }
+    { timestamps: true }
 );
 
 const Admin = mongoose.model("Admin", adminSchema);
-
 export default Admin;

@@ -1,5 +1,5 @@
 import logo from './logo.svg'
-import marvelLogo from './marvelLogo.svg'
+import QUICKSHOWLOGO from './QUICKSHOWLOGO.png'
 import googlePlay from './googlePlay.svg'
 import appStore from './appStore.svg'
 import screenImage from './screenImage.svg'
@@ -7,7 +7,7 @@ import profile from './profile.png'
 
 export const assets = {
     logo,
-    marvelLogo,
+    QUICKSHOWLOGO,
     googlePlay,
     appStore,
     screenImage,
@@ -41,6 +41,7 @@ export const dummyTrailers = [
 // =====================================================
  const castPhotoLookup = {
     // "name (lowercase)": "photo URL"
+    "mukun bhusal" : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE2uEZ_enhByVg-efFKsuSoNcVjEL9mGFBTMnjcUTFjrnWWB9xit5x3-B9hwJsbf6aV4nzUD6aZUs0ka_i4wytru5IlygIZp8lqBjuRrTPrw&s=10",
     "rajesh hamal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeeMvBm0wjqDU2eyWkcT98dVk8HU4HgUJvJxPUbEtHew&s=10",
     "bhuwan k.c.": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBV0U8oSMSW1wT7nw2ceNm2ojcG8jaRLLdyFh8x_s2_Q&s=10",
     "nikhil upreti": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtlBfqk5aQxbCnbHtS6AiKnmjzPT9ZqGcS7OqunVLwAQ&s=10",
@@ -130,93 +131,244 @@ export const dummyTrailers = [
     "bijay baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmQjvPudFCfyqz41Ui3POXzRFjPLmVAISLxRASGXvxSQ&s=10",
     "shri Krishna niraula": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLVwlVRojBaIqd4E6cs-_3U2jP-s1DhN3ZPFkzB1gojw&s=10",
     "aayushi dhakal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9ABUnygTf9fmQa-FPUJmPIcuTtG_3wDtdNR9K5KDqkw&s=10",
-    "Jvis shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS72cUprffhHBgc0ADHvIqXW4oASCcsN50s6F-uyaFCyw&s=10",
+    "jvis shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS72cUprffhHBgc0ADHvIqXW4oASCcsN50s6F-uyaFCyw&s=10",
     "ghanashyam joshi": "https://artistnepal.com/storage/images/users/1861028710269476.jpg",
     "geet bista": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSohv410dU3sTXzHMaDuKvl4OMuHGRVxb1zeQ9_Fn5XaA&s",
     "gurans dhakal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSc_2Krei_NIB2h7JDPlQm1zWtVaZCHKRu1L-cG-4b3twONQBpGUS7owE&s=10",
     "hari kuma bhandari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyMT7i5O6Lew3lDmldOWz-x861YAuOBMCNWZsiSCWIFQ&s=10",
-    "Mahendra Mainali": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYZqgbsiR4ehwjpOJYrwN3DYZHO8GamKQ_jOKNSkUmDA&s=10",
-    "Prakash Ban": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_zYJvAehVo93kc3CgvX8lTzw1BicHjEWktEWD_Mb4Q&s=10",
-    "Gauranga Banjara": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTqhuMclDSj0oJHM7IyKc09lm9L7uKEEEWNE1kUODK47Q&s=10",
-    "Anjasha Rijal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrCg33M3sHe7JI2j2xAHq30rfIn6U-1UN-G6YnfU58HQ&s=10",
-    "Jitu Nepal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXH--0RPkaDQwYsqVakj9YHfGigwxi3Mw9kPdXSyb8Ig&s=10",
-    "Niti Shah": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_vB958_cdmVVgr58jpzZHEc0PqVffl5eJBTUIljEpdQ&s=10",
-    "Himesh Pant": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTqYQtRBa1PfrQyAXpROY7cvTcYiX2EqGPHPh8oSOfg&s=10",
-    "Kamalmani Nepal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr-7bQasZZua3IcwXmBnS6iUhnXKr2uSmGGtEnwJ9-HA&s=10",
-    "Wilson Bikram Rai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrc_KTn2k-PMq_zTb1r4lvy6kI3HyQqbg2TPAOpB0xlQ&s=10",
-    "Shivu Pandey": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSF4uDVHgNa-h3mfjrUadAuLeSdDpMucD_gaS6CVeEt3g&s=10",
-    "Nazir Hussain": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8LVoopkoV0FlrmEDAdtNSYcX5kd63e7W5oid5xLWZKA&s=10",
-    "Sanchita Luitel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRemBstm8ugET4gCFA7rbi4r19RNbHNB5BmGEDsyTJRpA&s=10",
-    "Sushil Sitaula": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSV3qFtqsS4u8K0297cLJZNq0nmfWiPxPwFiM7qlaNYDQ&s=10",
-    "Anupam Shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG0i7j20pcNvMZor0gg65912ZgMg0x0Py5tZUmIDGzPg&s=10",
-    "Raj Kumar Ghosh": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1DLtJ31iwSO0PUOWiXbevqKbCnZaxCUaPol8hx5Uo6w&s=10",
-    "Bishal Pahari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT68aZMH9Z4KdMy7A_68WOKZFVhTGT-EJOrn4oCjkQpcA&s=10",
-    "Puskar Gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbwERKTdREDSbPKDpJfHWIyVhJ4-SPGQisSD7K0VlenA&s=10",
-    "Sunil Thapa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJNs3ws2KEUl9PvM2idb80BrCxRXCmrtHUxUnwxcdOsQ&s=10",
-    "Kabita Ale": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoq-PaR_Q5LxtT9gJJay80n2z8mmB36YueADnKFWuUwA&s",
-    "Abhayraj Baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHqpSc_T8KUFTs1CKbyMNhwR667Zu-AEfzBfyA60FeuA&s=10",
-    "Uday Subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_na1yAbgD7gR3l8OEsvxrYAFgbZshtZ8Sfulm6rbsBQ&s=10",
-    "Rajani Gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw1V6MJvBeXO3Eo4fV_S7NpHPfq7PKMp4aQ2xCPi8j2Q&s=10",
-    "Bishal Limbu": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPRMzNAK8sDZhHfGnC_kgduxgb0olmKTZ4TG8RJGmLOA&s=10",
-    "Saugat Malla": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-W7K8OntL4EyKCdgl0wUY6DDStbKM_qDPVa6YaNtw8Q&s=10",
-    "Arpan Thapa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGXWXZ49q9HohYmp_5Fti90tDVB3TsPPPE-plyOwL4UQ&s=10",
-    "Hemanta Budathoki": "",
-    "Kavita Raya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJzcoMK4fPiGz6v8euYQURVRYLAEi_f7L90fVMlyMzLw&s=10",
-    "Kameshor Chaurasiya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJA782T7wNxZ9IwXTGwSm4exToWS2DWxKsv5W9rBD8UQ&s=10",
-    "Prajal Dulal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTs3muf_0oKuPTJDEGed281Ht4G45RLjVvLzvvxCcyF8w&s=10",
-    "Sunil Chhettri": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu9rFp-2fBTV1LrXPPZQnI0GedIRrM8Rma3YWbaQkQXQ&s",
-    "Upasana Singh Thakuri": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQalxcdnVMzQQrb03XzR8FCFXL5yK0dDHYQHfRN2ANZMw&s=10",
-    "Aanchal Sharma": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTu41AjNtkr8lMCqmV1f3i2MM5ueUyPo6DfrZujsrGD5A&s=10",
-    "Jassita Gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcfqjE5FR7UbO7TmEMK4PnO2hZv9s9PHM35uRaVG7TOw&s=10",
+    "mahendra mainali": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSYZqgbsiR4ehwjpOJYrwN3DYZHO8GamKQ_jOKNSkUmDA&s=10",
+    "prakash ban": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_zYJvAehVo93kc3CgvX8lTzw1BicHjEWktEWD_Mb4Q&s=10",
+    "anjasha rijal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrCg33M3sHe7JI2j2xAHq30rfIn6U-1UN-G6YnfU58HQ&s=10",
+    "jitu nepal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXH--0RPkaDQwYsqVakj9YHfGigwxi3Mw9kPdXSyb8Ig&s=10",
+    "niti shah": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_vB958_cdmVVgr58jpzZHEc0PqVffl5eJBTUIljEpdQ&s=10",
+    "himesh pant": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMTqYQtRBa1PfrQyAXpROY7cvTcYiX2EqGPHPh8oSOfg&s=10",
+    "kamalmani nepal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr-7bQasZZua3IcwXmBnS6iUhnXKr2uSmGGtEnwJ9-HA&s=10",
+    "wilson bikram rai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrc_KTn2k-PMq_zTb1r4lvy6kI3HyQqbg2TPAOpB0xlQ&s=10",
+    "shivu pandey": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSF4uDVHgNa-h3mfjrUadAuLeSdDpMucD_gaS6CVeEt3g&s=10",
+    "nazir hussain": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR8LVoopkoV0FlrmEDAdtNSYcX5kd63e7W5oid5xLWZKA&s=10",
+    "sanchita luitel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRemBstm8ugET4gCFA7rbi4r19RNbHNB5BmGEDsyTJRpA&s=10",
+    "sushil sitaula": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSV3qFtqsS4u8K0297cLJZNq0nmfWiPxPwFiM7qlaNYDQ&s=10",
+    "anupam shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG0i7j20pcNvMZor0gg65912ZgMg0x0Py5tZUmIDGzPg&s=10",
+    "raj kumar ghosh": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1DLtJ31iwSO0PUOWiXbevqKbCnZaxCUaPol8hx5Uo6w&s=10",
+    "bishal pahari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT68aZMH9Z4KdMy7A_68WOKZFVhTGT-EJOrn4oCjkQpcA&s=10",
+    "puskar gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbwERKTdREDSbPKDpJfHWIyVhJ4-SPGQisSD7K0VlenA&s=10",
+    "sunil thapa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJNs3ws2KEUl9PvM2idb80BrCxRXCmrtHUxUnwxcdOsQ&s=10",
+    "kabita ale": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRoq-PaR_Q5LxtT9gJJay80n2z8mmB36YueADnKFWuUwA&s",
+    "abhayraj baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHqpSc_T8KUFTs1CKbyMNhwR667Zu-AEfzBfyA60FeuA&s=10",
+    "uday subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_na1yAbgD7gR3l8OEsvxrYAFgbZshtZ8Sfulm6rbsBQ&s=10",
+    "rajani gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw1V6MJvBeXO3Eo4fV_S7NpHPfq7PKMp4aQ2xCPi8j2Q&s=10",
+    "bishal limbu": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPRMzNAK8sDZhHfGnC_kgduxgb0olmKTZ4TG8RJGmLOA&s=10",
+    "saugat malla": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-W7K8OntL4EyKCdgl0wUY6DDStbKM_qDPVa6YaNtw8Q&s=10",
+    "arpan thapa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGXWXZ49q9HohYmp_5Fti90tDVB3TsPPPE-plyOwL4UQ&s=10",
+    "hemanta budathoki": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpNV2An05RRKyBvtKqGVLsANCM8JQXu2CIEUtr1Zm0ag&s=10",
+    "kavita raya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJzcoMK4fPiGz6v8euYQURVRYLAEi_f7L90fVMlyMzLw&s=10",
+    "kameshor chaurasiya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJA782T7wNxZ9IwXTGwSm4exToWS2DWxKsv5W9rBD8UQ&s=10",
+    "prajal dulal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTs3muf_0oKuPTJDEGed281Ht4G45RLjVvLzvvxCcyF8w&s=10",
+    "sunil chhettri": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu9rFp-2fBTV1LrXPPZQnI0GedIRrM8Rma3YWbaQkQXQ&s",
+    "upasana singh thakuri": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQalxcdnVMzQQrb03XzR8FCFXL5yK0dDHYQHfRN2ANZMw&s=10",
+    "aanchal sharma": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTu41AjNtkr8lMCqmV1f3i2MM5ueUyPo6DfrZujsrGD5A&s=10",
+    "jassita gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcfqjE5FR7UbO7TmEMK4PnO2hZv9s9PHM35uRaVG7TOw&s=10",
     "shweta mishra ": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV6m8iECEXGgH_yEh3kWlX4FJ7Tw7n-D8VmV8JuEDIzQ&s=10",
-    "Bijay Sanjog Subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7DaWMaXt3zKfhluTL0sfFmOb4FE_biwo1zK8CU_371g&s=10",
-    "Jiwan Baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9drxuiPVaucRSssjgyRm15xqJoWrKpIF5ZuwfM-R-zg&s",
-    "Naren Khadka": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuENzAbhIRTCJFRGTcGEI5p-9Q9GWqh9BXrERYSPcA7g&s=10",
-    "Bhisham Joshi": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwhO5eqqtl_q9M2iFsuKXJQ3W8qY-fsKKVMK_kau_jFQ&s=10",
-    "Kishore Bhatta": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn69XjmF8DgVpEiM3ITyWHqZdWlYsvPON2EupSq8cQJA&s",
-    "Aarti Mandal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJv3TB0HMOrANseQsBH_8KvEXwOa8lTYuzhxDEHZc5mw&s=10",
-    "Sunil Magar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU_LNPY5gQ9zsEj5N6NPlC4ghc81fIkyyP75EjpdwiLQ&s",
-    "Deeya Pun": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZesl7SdDHC31QqFoIe2Ac0wHzB7THdIC1u6qczxGUqQ&s=10",
-   "Bijay Baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRstxWa5KKzS5VEMMvk-rTVrp4e2r-2otZjtWfZsGrwA&s=10",
-   "Swastima Khadka": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcfk5IxAzgUjiXKCYojNzhZla9vVb6NaXDh5sj1UVApQ&s=10",
-   "Yubaraj Lama": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRVkcMaiWadZDR7VjrbsJvO2Ks3amjl3nA1Xv6NnzuGQ&s=10",
-    "Shyamashree Sherpa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC18-whMxuOqJh8Qnl6sfDa5WCJuka9rnO_ydd_PJvtg&s=10",
-    "Saugat Malla": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLlnRtguBvNqzCNsGoWgYmWSUNcoc0Tel6jG4b9tIltQ&s=10",
-    "Karma Shakya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6IGMXp97nFriGlXVbAOUHnA4muySicWUWixBvKW8jGw&s=10",
-    "Prateek Raj Neupane": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU7u5VephlHkkvo2jINTmdcehFeiqZx13t3SFclyMsgg&s=10",
-    "Srijana Subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSO11TPMTErqQaoKPIOXao4CcEt6dA8q8f-pP_b-KcH-g&s=10",
-    "Sushil Raj Pandey": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlI9pYKkmPHa4Mh5Epx0PO61KoqNdP3-IFvMjcYgobkQ&s=10",
-    "Praween Khatiwada": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvzdepshnZ3gPethz1Q683i7IUdOzdYaDKq-PjPUY1OQ&s=10",
-    "Kameshwor Chaurasiya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbMzYI6fUjPFu8QzJNNWQMZmWaJbzsCCaQ3_w7nzOh5A&s=10",
-    "Bipin Karki": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKiZWmGEb_Apkj4JteBVw6bFPeGYBmpkgKZOk93dLj3Q&s=10",
-    "Ramesh Upreti": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6rzvxSUgnBODOEdlLBzknkMXAHYI7eOrKJQpJ-dRtzA&s=10",
-    "Raj Ballav Koirala": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUeIlD7fbcpGdu08XWbMmhofiZJI_7lne72CfAxYNnVA&s=10",
-    "Pramod Agrahari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSudA57ulxW0CnNv22us5I46SDXlHnuixFP-ToLuC9evA&s=10",
-    "Menuka Pradhan": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFgKhMtzm-ivh2DQTGsoY0jZfyxoDkBc6O_-NDwpLMoQ&s=10",
-    "Kristina Gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdu2NzQuppyL44q9kVcT1ZQJVnA123IH5hly6wHVR27g&s=10",
-    "Salon Basnet": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvc-VcH27PZnMps2O8Q0cikxgGnR6LrDKPIsS3DAPTSQ&s=10",
-    "Rabindra Jha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9Us-Ou1qYel7g5hROh7_snUMMIxFbHBShu-twg3cLqg&s",
-    "Rekha Limbu": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPuSKczxFdAFedzgvouHjxngAiNwM9QW0GoL-sV6-sYw&s=10",
-    "Roydeep Shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS854O6c38lKx3QwQVht8hioTtZEnnGhA_L9wdwYrB14w&s",
-    "Khagendra Lamichhane": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-Iv-UqSGroUvfMZbVz3rmUDd5vnzbddehDX2b5pjz5g&s=10",
-    "Rabindra Singh Baniya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-wiyYDhchv8A2gosVCfgEZm-icOgieJ4KuAcz7NtO5A&s=10",
-    "Shiva Shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCqnzNy2gR_dcAVfaefWT9krVk6SWq3DJrE2SG0u5uuw&s=10",
-    "Manish Raut": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2DKJqFxTKjYYTTpw8_tL7NzmDtb1OFC-rL9QxraDVfw&s=10",
-    "Barsha Raut": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQb9AiL3_5F1Jp5acUCWq3XGZHjzKY1rU7KPLdrT7rbGw&s=10",
-    "Upendra Subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFd8iOa6-YMpfn124UPs-LO4-5h8biY-wRg_lWowqgpA&s=10",
-    "Shilpa Maskey": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPd3_lbxDVBl9K63_DDYUrIxf5KwWNd9ump4QUiQD3Ag&s=10",
-    "Mahesh Tripathi": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTFWHO44gmyAoscGSU5unbtc7zSozlRg4ACBv4KnvE5g&s=10",
-    "Kamal Mani Nepal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr-7bQasZZua3IcwXmBnS6iUhnXKr2uSmGGtEnwJ9-HA&s=10",
-    "Saroj Khanal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1WBPBM4WQA17YYx44tWQXSSDsg43Bab0F0RmdirAFtQ&s=10",
-    "Laxmi Giri": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvUCxopozjJ5t-X07MGGBQ5c7ewoaMMYVI3Q3jnnfzwQ&s=10",
-    "Amir Gautam": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQc8BWc5g9Oq40N22hRz0zI5xKv3-mAvwm-9tOkvCS4Og&s=10",
-    "Binita Baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-_WnRlbtci1U59EeHjEOPOoKpQ0VgEwNYU1xqt9Zbpw&s=10",
-    "Mithila Sharma": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXxFzMYONAHTW-hbOcBNndL24RzpO5pyQr9H9nYbVAtw&s=10",
-    "Surakshya Panta": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQNzSvd9XvyptUu1ZS7YwGubNgK9syVHvuLWHS5rLtFA&s=10",
-    "Desh Bhakta Khanal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHamDn4hDc6q_dLMfa0hu5qpk0FRj7Lar-899YxmwL1w&s",
-    "Ashant Sharma": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQC5i1xTzqISg8jerONOgvsaVL3LeQiDSlmbgtdvx2xUA&s=10",
-    "Prakash Ghimire": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTG8RvDiB7ylcnxkC6CDO1s2rtN1h3AEvbJImCo2xHBOg&s=10",
-};
+    "bijay sanjog subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcROtjObYykkmaz9mQOUAmcfQtLkG2qVTUdOIbtDn2wy5Q&s",
+    "jiwan baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9drxuiPVaucRSssjgyRm15xqJoWrKpIF5ZuwfM-R-zg&s",
+    "naren khadka": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuENzAbhIRTCJFRGTcGEI5p-9Q9GWqh9BXrERYSPcA7g&s=10",
+    "bhisham joshi": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwhO5eqqtl_q9M2iFsuKXJQ3W8qY-fsKKVMK_kau_jFQ&s=10",
+    "kishore bhatta": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTn69XjmF8DgVpEiM3ITyWHqZdWlYsvPON2EupSq8cQJA&s",
+    "aarti mandal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJv3TB0HMOrANseQsBH_8KvEXwOa8lTYuzhxDEHZc5mw&s=10",
+    "sunil magar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU_LNPY5gQ9zsEj5N6NPlC4ghc81fIkyyP75EjpdwiLQ&s",
+    "deeya pun": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSZesl7SdDHC31QqFoIe2Ac0wHzB7THdIC1u6qczxGUqQ&s=10",
+   "bijay baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRstxWa5KKzS5VEMMvk-rTVrp4e2r-2otZjtWfZsGrwA&s=10",
+   "swastima khadka": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcfk5IxAzgUjiXKCYojNzhZla9vVb6NaXDh5sj1UVApQ&s=10",
+   "yubaraj lama": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRVkcMaiWadZDR7VjrbsJvO2Ks3amjl3nA1Xv6NnzuGQ&s=10",
+    "shyamashree sherpa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTC18-whMxuOqJh8Qnl6sfDa5WCJuka9rnO_ydd_PJvtg&s=10",
+    "saugat malla": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLlnRtguBvNqzCNsGoWgYmWSUNcoc0Tel6jG4b9tIltQ&s=10",
+    "karma shakya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6IGMXp97nFriGlXVbAOUHnA4muySicWUWixBvKW8jGw&s=10",
+    "prateek raj neupane": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU7u5VephlHkkvo2jINTmdcehFeiqZx13t3SFclyMsgg&s=10",
+    "srijana subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSO11TPMTErqQaoKPIOXao4CcEt6dA8q8f-pP_b-KcH-g&s=10",
+    "sushil raj pandey": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlI9pYKkmPHa4Mh5Epx0PO61KoqNdP3-IFvMjcYgobkQ&s=10",
+    "praween khatiwada": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvzdepshnZ3gPethz1Q683i7IUdOzdYaDKq-PjPUY1OQ&s=10",
+    "kameshwor chaurasiya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbMzYI6fUjPFu8QzJNNWQMZmWaJbzsCCaQ3_w7nzOh5A&s=10",
+    "bipin karki": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKiZWmGEb_Apkj4JteBVw6bFPeGYBmpkgKZOk93dLj3Q&s=10",
+    "ramesh upreti": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6rzvxSUgnBODOEdlLBzknkMXAHYI7eOrKJQpJ-dRtzA&s=10",
+    "raj ballav koirala": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUeIlD7fbcpGdu08XWbMmhofiZJI_7lne72CfAxYNnVA&s=10",
+    "pramod agrahari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSudA57ulxW0CnNv22us5I46SDXlHnuixFP-ToLuC9evA&s=10",
+    "menuka pradhan": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFgKhMtzm-ivh2DQTGsoY0jZfyxoDkBc6O_-NDwpLMoQ&s=10",
+    "kristina gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdu2NzQuppyL44q9kVcT1ZQJVnA123IH5hly6wHVR27g&s=10",
+    "salon basnet": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvc-VcH27PZnMps2O8Q0cikxgGnR6LrDKPIsS3DAPTSQ&s=10",
+    "rabindra jha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9Us-Ou1qYel7g5hROh7_snUMMIxFbHBShu-twg3cLqg&s",
+    "rekha limbu": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPuSKczxFdAFedzgvouHjxngAiNwM9QW0GoL-sV6-sYw&s=10",
+    "roydeep shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS854O6c38lKx3QwQVht8hioTtZEnnGhA_L9wdwYrB14w&s",
+    "khagendra lamichhane": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-Iv-UqSGroUvfMZbVz3rmUDd5vnzbddehDX2b5pjz5g&s=10",
+    "rabindra singh baniya": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-wiyYDhchv8A2gosVCfgEZm-icOgieJ4KuAcz7NtO5A&s=10",
+    "shiva shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQCqnzNy2gR_dcAVfaefWT9krVk6SWq3DJrE2SG0u5uuw&s=10",
+    "manish raut": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2DKJqFxTKjYYTTpw8_tL7NzmDtb1OFC-rL9QxraDVfw&s=10",
+    "barsha raut": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQb9AiL3_5F1Jp5acUCWq3XGZHjzKY1rU7KPLdrT7rbGw&s=10",
+    "upendra subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFd8iOa6-YMpfn124UPs-LO4-5h8biY-wRg_lWowqgpA&s=10",
+    "shilpa maskey": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPd3_lbxDVBl9K63_DDYUrIxf5KwWNd9ump4QUiQD3Ag&s=10",
+    "mahesh tripathi": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTFWHO44gmyAoscGSU5unbtc7zSozlRg4ACBv4KnvE5g&s=10",
+    "kamal mani nepal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQr-7bQasZZua3IcwXmBnS6iUhnXKr2uSmGGtEnwJ9-HA&s=10",
+    "saroj khanal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1WBPBM4WQA17YYx44tWQXSSDsg43Bab0F0RmdirAFtQ&s=10",
+    "laxmi giri": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvUCxopozjJ5t-X07MGGBQ5c7ewoaMMYVI3Q3jnnfzwQ&s=10",
+    "amir gautam": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQc8BWc5g9Oq40N22hRz0zI5xKv3-mAvwm-9tOkvCS4Og&s=10",
+    "binita baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-_WnRlbtci1U59EeHjEOPOoKpQ0VgEwNYU1xqt9Zbpw&s=10",
+    "mithila sharma": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXxFzMYONAHTW-hbOcBNndL24RzpO5pyQr9H9nYbVAtw&s=10",
+    "urakshya panta": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQNzSvd9XvyptUu1ZS7YwGubNgK9syVHvuLWHS5rLtFA&s=10",
+    "desh bhakta khanal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHamDn4hDc6q_dLMfa0hu5qpk0FRj7Lar-899YxmwL1w&s",
+    "ashant sharma": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQC5i1xTzqISg8jerONOgvsaVL3LeQiDSlmbgtdvx2xUA&s=10",
+    "prakash ghimire": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTG8RvDiB7ylcnxkC6CDO1s2rtN1h3AEvbJImCo2xHBOg&s=10",
+
+    "anjana baraili": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjdQNpjms6-ZxtvYQQM1CxAmeKgvH79qXzQeiPSg8hqw&s=10",
+    "prakash saput": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhY1SVB-C35A8b3V75O2gYFn6RJ2Qgh-XE4WN_-RNB9g&s=10",
+    "buddhi tamang": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTOCN4dAHO79J6qwbKczwBokNU1gUAB2i2ojq5gcOMeIg&s=10",
+    "maotse gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRyK1r52iRRqtu2ucwC0j_Ey_pzbusySmmctenh0y8cOQ&s=10",
+    "bhola raj sapkota": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRfKDDxgQoTBJvi4wmU3ff1hOeJrS_R9alk_OVWeCMAw&s=10",
+    "binod neupane": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTGnee_yozY5fth19Alkfo86o1kc5Be7bJL7twDKh0Mwg&s=10",
+    "alisha Bastola": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNv-BCFc1RDOafaDpqasBPQiXSQLKTTIrt6147_BXyCw&s=10",
+    "swayam kc": "https://www.lensnepal.com/files/profiles/barsha-basnet.jpg",
+    "jaanbi poudel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQn_gLm_bvlaeI2hPpVcsxzI1ukNyq64x16ZAIAacvmQ&s=10",
+    "dhiraj magar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgfcmBH6as4azJuGixKqsQfu0X9D8S6NLV0yjVKwIYZw&s=10",
+    "khadka bahadur pun": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQkHIlik8dod_au4rj_xEAJ4Z4a_gcOa0h1c5uDVylig&s=10",
+    "sujata rai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRr3WET52dUMcObiCRcF084zHH-RpOiSHi1-VgMyPvTow&s=10",
+    "raju resmi magar": "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/santosh-lama.jpg",
+    "raj thapa kauchha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtC2kCPRNhtRlIyA0sNNJLezegHNGfbMn5PyYHruNRHQ&s=10",
+    "astitwa bhattachan": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRern_f8J9aUDp80PTuOAh3nK0lDfhLZ9LI03ndO1VJxTLQzNUyBABq0gb3&s=10",
+    "sangeeta thapa magar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFfd1nLR4VQM_Ssk0aHOfV6xtQPj5mTcIzrJ34ZSFA8g&s=10",
+    "arun pun magar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpEGB3MzXxPyXFGzSUcMqaUM4dK4gNxofMoCHTyXd9eQ&s=10",
+    "sara rai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOSj1QJQO_rNnK2IzwLrXQkZUgb0SDaP_G9aOwzt2FGTL4V_vJ4inhCpg_&s=10",
+    "shweta mishra": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV6m8iECEXGgH_yEh3kWlX4FJ7Tw7n-D8VmV8JuEDIzQ&s=10",
+    "deepak raj giri": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM2yrf0FH0xPHa2n-_rjle7yuEa9g-x1g_k8Pz9ur1Ug&s=10",
+    "kedar ghimire": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvs7YUk5XxSwwoiursTfB48kL0GsTnQ3ToaJNZN_in0w&s=10",
+    "barsha siwakoti": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz2vJhKaCqLwEDCrH9WLUfu7RCPyOuWqFO_yT4jNtmDQ&s=10",
+    "dipaa shree niroula": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJebs3xq5jR3X4W16ypghLcXuA8KJdF8ezRg6CHYn7XQ&s=10",
+    "ramesh budathoki": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiuHF1N1_rI8haufimk8s0ADaSj1uc1tOxxmSMgvAI3Q&s=10",
+    "keki adhikari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMxY5hfzG_X2WGPBxrmQFRhZaXNIr8qQ8yJWwkaqXnrQ&s=10",
+    "shupala sapkota": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_fjp0MASib_gVAtjvmZRgCzHPSIMUDc_VkO37lffpMit7F-xB0q54Lck&s=10",
+    "swechchha raut": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUZ-hmo7xHVeiSaB02OZvZ0CYWoAqjUU6w3FzI0KLYHw&s=10",
+    "sulakshyan bharati": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkMMe8Ja_qhqy5uPgswnIYlcjame3dhwQP5i1OOULu6w&s=10",
+    "rama thapaliya": "https://artistnepal.com/storage/images/users/1865294207525327.jpg",
+    "sushma niraula": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM9cKZ0pzwrZSJlSR5637rk9Xz4tE3B2gVLb5va-9kzMypi6_TRPMDqYA&s=10",
+    "sabin bastola": "https://www.thefilmnepal.com/uploads/medias/thumbnail-md/sabin-banstola.webp",
+    "biraj bhatta": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ2WmaTfVxByKDmnaYs0vrq6VlRZsvnfuVONmbzIwKuzQ&s=10",
+    "samir bhatt": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTt_qN79a2SDyQjGODV5G8YPyFN-pRyrmypQWKtD-agJQs0LbH8X1Awn8a2&s=10",
+    "sonu chandrapal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdUdxJpaWhT_zINt53P6mEaLs4vFYRMQtFDQkMWql9ADBDkB8wwnMi4sRs&s=10",
+    "deeya maskey": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvqBzGxp5ojagGYTtHVnii-MRWfSG0LC1gde-nhKsXYg&s=10",
+    "murali dhar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAC58YuKn88RspuDgZy3rDC1G6cOh4S55JEjbKLWNDJHvU191LjTVwF8f6&s=10",
+    "sanisha bhattarai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQy31XDTkKI0ayT3KZZ9Rz_ZIWfD0kfWErB1UTkwfWauzFaiqwQlX7B22-Y&s=10",
+    "nancy khadka": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKOuRWN9sYtwINekm2Oxv-YOu6NTz2X_upajf_kUa2OauxOOo7Po69mVI&s=10",
+    "kanij koirala": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjIAx8td74dE_8YWhNqzs5jXuvFQHZD4zKdXf8SLQmeio4VDsUZvLlSH8&s=10",
+    "krishna bhatta": "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/roshan-shrestha.jpg",
+    "kalu rana": "https://www.lensnepal.com/files/profiles/sushil-pokharel.jpg",
+    "arjun jung shahi": "https://artistnepal.com/storage/images/users/1856130829262133.jpg",
+    "shuleman shankar": "https://www.onlinekhabar.com/wp-content/uploads/2024/10/suleman_shankar_iku-768x469.jpg",
+    "tara sharma": "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/anju-panta.jpg",
+    "asha magrati": "https://image.tmdb.org/t/p/w500/wNCdEZSQhPHqeHK5YXgqfyIgviH.jpg",
+    "nikita chandak": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMiIB9jyOGuNY7M-CMwUvphfZZpYyGXks3sqgqdy2Baq4diNDqZcBa6CtL&s=10",
+    "dayahang rai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEQ9FhTiASpICqw421csKY10w60TBSfqv4-7uipJ6cbA&s=10",
+    "reecha sharma": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqahr7zUDTNfi-pAdNvpz12cHZARyJhUO6DwrsG7c_jg&s=10",
+    "gaumaya gurung": "https://www.thefilmnepal.com/uploads/medias/Gaumaya-gurung.webp",
+    "ghanashyam mishra": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeG-I0D-Nnw53MJzWJf-zRguzbvT1ZNuoHvTAzKi6nQw&s=10",
+    "prameshwar kumar jha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQxLl7hMtSj7AE47fwY4WFTlNHHuWgIDVkuOajBUp9f5mnE1NHyPmr1l8&s=10",
+    "pashupati rai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrC9MFAG0pGAKfMuoJUXnf4USxSYfba3h4nSJ9ojjXaw&s=10",
+    "niraj shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSp2AJ6gfKEHfsDOmXDVNwZfmwl9YAAtx2x0anPaWUvQ&s",
+    "miruna magar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTENgcgHCS6TmFDmFiAUtJkc79VVZu4pcwVYqzR_U2Cbw&s=10",
+    "shishir bangdel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkAcTiWV8_gw0S2lj2Ad1DtATUJa7A2jsIdYG48Qi2Qg&s=10",
+    "raj thapa magar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgLbQtULtko2-c5c7VwBprlUoTf1fpIL70c4rCnUOlCw&s=10",
+    "kabita ale magar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4Pjah7_ERdRP427YQJ89uYykUHvQ6jHbeDAW0cjdYjtc9tef3S5_EKvE&s=10",
+    "pushkar gurung": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSU1X90hYX-2YGlF3tmus9XMQ9IBiwU2hh7VTx10gzESg&s=10",
+    "anu thapa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoNlgKHCvllAzmivY9BndbI2knnKqeBKjQ7XRiKKhCvA&s=10",
+    "khadga bahadur pun": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmQVD9Le8VYw1POqcPmkGZ69AfF1lJS_ASDDV42tDyTw&s=10",
+    "aryan sigdel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmZy64mImYi2iMelv7x7PKTi-RS4u78OCSRtNP52HHQg&s=10",
+    "pradeep khadka": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRz4cpDS49WcJ9nbD_2ziMbggeebLw9Fg2neSPILpcLQ&s=10",
+    "paul shah": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRm5pzZuTOM68kfIM0f7oT5GbL5g5SiZzVsehoHSCzV9Q&s=10",
+    "parikshya limbu": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPOBWDdJfEmF5lNUKHbQ2knnvxB-lIwxWv59dWpmmkcw&s=10",
+    "prem subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1rNYHsRRdvH_nj1W0KWd85pIZ99ew55_UFBMlhyDgEg&s=10",
+    "lokendra lekhak": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOzcm8hoQxGj9olHE2Z2aPIaaYcUFkPhs7T1_hfQuR5g&s=10",
+    "mohan niroula": "https://artistnepal.com/storage/images/users/1862749821042644.jpg",
+    "subash gajurel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvJk_bjGdTagsEMWRfECzt03y6Xx5jzjlUc_Ag9vRTYA&s=10",
+    "bidhya karki": "https://www.thefilmnepal.com/uploads/medias/bidhya-karki.webp",
+    "shankar acharaya": "https://www.thefilmnepal.com/uploads/medias/shankar-acharya.webp",
+    "basant bhatt": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIMR37NeAfNhW51kavKYxSx42JdJtD120AzeF3y3OzDg&s=10",
+    "govinda parajuli": "https://nettv4u.com/imagine/01-08-2022/govinda-parajuli.jpg",
+    "priyanka karki": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTV0uypJK61MIeiOlik6FXlr-H5hPkFUG8pZwMXRUtZfg&s=10",
+    "shri krishna niraula": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLVwlVRojBaIqd4E6cs-_3U2jP-s1DhN3ZPFkzB1gojw&s=10",
+    "aayushi dhakal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9ABUnygTf9fmQa-FPUJmPIcuTtG_3wDtdNR9K5KDqkw&s=10",
+    "jvis shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS72cUprffhHBgc0ADHvIqXW4oASCcsN50s6F-uyaFCyw&s=10",
+    "ghanashyam joshi": "https://artistnepal.com/storage/images/users/1861028710269476.jpg",
+    "geet bista": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSohv410dU3sTXzHMaDuKvl4OMuHGRVxb1zeQ9_Fn5XaA&s",
+    "gurans dhakal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSc_2Krei_NIB2h7JDPlQm1zWtVaZCHKRu1L-cG-4b3twONQBpGUS7owE&s=10",
+    "hari kuma bhandari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSyMT7i5O6Lew3lDmldOWz-x861YAuOBMCNWZsiSCWIFQ&s=10",
+    "ramesh budhathoki": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_6L2i1VEn40V55jX5Kiz_6YgoxiEIvU2BoELXuFg6fPAGqwrAxTTss3D50PLpHQ2h2xIUJywyygWNr0hUPzL4jCEtSkaM6pSH6GslIBsf&s=10",
+    "kavita ale": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4EOOXhNoGjhREhEYbhYXH0xvI3059f0pdBBr0Xhe2sw&s=10",
+    "shishir rana": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjy_zPVPBR-aroywyVEnhuvbaKTWL98vVo6zfgE8AWcg&s=10",
+    "subhash singh thakuri": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6N4R5wKe-vDxprqEHdWYXuaVELMzFedmHBmdMaviW3w&s=10",
+    "jeevan baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQPi14yqr292SM9t6z8CgHs-oBI4jlVOCZnywKQFbF4Q&s",
+    "ritesh jung poudel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3WeyJQFRFRRqQFfiCtDQCBDHmOlG_wWUOgeTt171idg&s=10",
+    "kedar prasad ghimire": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSPI0dkC1zkQQs9Tm7HwtgSbeZ77PH_qSv4dp8Bjp50sw&s=10",
+    "anmol kc": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9iFUSx07odT2c6tICLY3lWrfLhpUnQJl8qh-dz3r_ig&s=10",
+    "bhuwan kc": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBV0U8oSMSW1wT7nw2ceNm2ojcG8jaRLLdyFh8x_s2_Q&s=10",
+    "usha khadgi": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0S5s31HNhhJxGnqx_CGjbdyrczWZwPOp7jx8kUZvVLA&s=10",
+    "bipana thapa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnslsgrvtvAJ02B7NnzI9FDfLusjCQEYhMLO8xQ2bjAQ&s=10",
+    "pradeep rawat": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCLmn4PNTBMcdQXhjb6pa5OsjgfANhqRMB4VwnpsZ1OA&s=10",
+    "simran pant": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSRFbPlB5a-FQKNWKAXfSIx1_BVP3rDsXHCQG88XvaBdg&s=10",
+    "saigrace pokharel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSd41BubYmZ2HMFPIiB5q4FDkeLFjP4O4fmgPl6OGeYRA&s=10",
+    "usha uppreti": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR3NkPpHtbm73aOmcLdJRKLijWnjgE4fYhjCzL7LRXjXw&s",
+    "gajit bista": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfoh6wqcwgyh44LHBoWFOUfKv7h6iRRjlg0XUVVCwtwA&s=10",
+    "begam nepali": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZfCG_LC1raerA4Tk2REWYHZvsDB3UrVo4DOWOkMt_tQ&s",
+    "prakash sjb kunwar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSoQMOAJ7rcLMk9tzpS7hdm22y2AXNVUhifGy2q-_MGAg&s=10",
+    "samaira thapa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUvxc_pHPZore8v9YUF7g6NDfz9tQPC0lWBC2i1h6Okw&s=10",
+    "shan adhikari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlUUPb7wv83qfI0gUBGNJwpFrBdffCze0dLLgytGElCQ&s=10",
+    "alex paras": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCuX6fpiQcz9LkihRTNNus2NkE76wl6HyjIGzZ0X9fZA&s=10",
+    "sunil pokharel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQ4yaHEFBvaDDdl-1irg0W2RBry4onP4zOHtFTFD0PSA&s=10",
+    "suraj tamu": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLilViTr5VuTzoQiRBpWrBdJzaq59Ve_LBEdygjKGolg&s",
+    "bhawana khapangi magar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0Zi8IYEcGoTVZK5GVT68KovsKa1Y2NdFCthOu9Sxg7A&s=10",
+    "manhang lawati": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNRu8_HEDEtyp4BqnQh08l9YBXQ-AFE7yv-hnJxmW0gg&s=10",
+    "bishnu moktan": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMkICxpmAX6AGN2u7E4GYeNyrcynN3TNnRkX8xCgzXQg&s=10",
+    "anil subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpgg5EWflhCtP2Bl44sLfAltEc7q4LnpsNkrVuHlxZWw&s=10",
+    "mukunda kumar shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkAvuOoaKWEAyCaQ0b85VxCayW6mezyQhZIpAD2y6Y0w&s=10",
+    "abhay baral": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS854O6c38lKx3QwQVht8hioTtZEnnGhA_L9wdwYrB14w&s",
+    "prem pandey": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKnevjHcgBSUuT9xAQOpybMh-m2gj93gA7Tj56uvAXRA&s=10",
+    "asha poudel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbjv2Y6VubNquDCFUy-7Lanmz8tiRm2dJ5XExEVcI41A&s",
+    "govinda sunar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1olu1vMQjX3LUgLd0xov4JLa7BdFFLNgElTUK94h0dA&s=10",
+    "abha aryal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtwVwmeUGyi_UTLLbpEkMPAKmahmvxO3oSl8sXQHUsJg&s",
+    "saraswati adhikari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVFLPN5c-6Jva5xiKTHe4YkR8_0u9OuzaRfpOWFeXxAg&s",
+    "janaki kathayat": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQD8UOuYZ-WgL9hi3hNn1osiyEd-3NdW2mAJCUfAWzNkA&s=10s",
+    "nischal panthi": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ-KCmm2_x0b-OTq8EcqLBOTxz4UMEsF70exrVOnJMKCw&s",
+    "birbal chaudhary": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcShpzjSn_8pfc4CEUj4zQ-M2xRjVL9Sq2USMHJCkYOsZA&s=10",
+    "bishal devkota": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJKIcxfA11q4nWDchua0vyJE31iFylqI_m8d6aaf65Dg&s=10",
+    "prashansa subedi": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzv6Ln53aCTT05y0PFvL79qR5KtVyYWKHrrnHEmplHOw&s=10",
+    "renu yogi": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVu0BuULPtEQvlRqk4NbUWZnL2zEVC_ZpnC8gChQ2Zvg&s",
+    "nirbhik regmi": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR4SvENzvvvxSL5HSB2Fgl2g0twFnO8tRi32ylGMYL92Q&s",
+    "sushank mainali": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRo7NEqrn8RNWOIxMwxBj5snQJAXicqPLjHYvFhzUySdA&s",
+    "avon raj upreti": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgzW0sTReb0Gqxw1AgpU6_4wuqXeVpFKGdM_Zt_gFWBQ&s=10",
+    "subash pd gajurel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQh_TrD7Q47nxVl5xnV2RcMVZv47lzEDETZU6dqozTmLg&s",
+    "srijana adhikari": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS62sFIROFTx-kS_vuEqfseZjt645Yug5UyOgBlLt5Gog&s=10",
+    "rinchen lama": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9RDMRySFPUpriJY6kSffg7fTsMzmm-Vpz2_mZqaqo4Q&s=10",
+    "sanyam katuwal": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx38izHpzzpW0RNETfSBo5vGLHzyr-gWSsyQNhEOAQQQ&s=10",
+    "sijal shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQb2CflVgS-DDw0xVW_z0651DHndlh-GeDZO5ut8nvbw&s=10",
+    "anjila tumbapo subba": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5PeUOo7AuVH7RJPW2-A09Bk7M_SaRwKuw0iFCb1kH4A&s=10",
+    "prem kumar shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTN0BocjFnvUc6WHXHWo-G8jiFMOw4S40TxhLrLfkf48g&s",
+    "manju shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDu-0ERnmmw3fgDj3pTnPM3qNDkj421IXefYgVvMeQPQ&s",
+    "birup ghale": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTW5EA6f6GGgubt0NVSahvU6rNY6gnGecm4UErO24ZHgw&s",
+    "baldip rai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsVtJ5ZxuXB5h89wC_KvBPMpC-nvwQ2l9AFdHiI2rjTw&s=10",
+    "bedana rai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQE7YcjGHObJITE5NzHGonMlO46TIm8He1kG8N0TI_AJg&s=10",
+    "neer bikram shah": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHqpSc_T8KUFTs1CKbyMNhwR667Zu-AEfzBfyA60FeuA&s=10",
+    "madan krishna shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSG_WYYBqxpZwpZDPXdDeejBRfPcVJzetFeDJr-u_2VBQ&s=10",
+    "prabin khatiwada": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTs26f1DoppCguxelxoE3YRQSGeRdkPVp33kvMs04XSgQ&s=10",
+    "anjana baraily": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjdQNpjms6-ZxtvYQQM1CxAmeKgvH79qXzQeiPSg8hqw&s=10",
+    "puja chand": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKFieoe8vQ-rLW3mEklNUAe67enBXxu1_52cTx_gzvgA&s=10",
+    "yaman shrestha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFPhDkVRbAF-ijCiUxF0VuzdKecl6XlgpjYz7CV1wvDA&s=10",
+    "yaseli yonghang": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKPa1w3n5l5F3LuZvQ4DEo9PKV5DomXWlT1DGjMPK5lA&s=10",
+    "babin rai": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSp9uGanKslWgU1lNkJDv-kYvX5HuCTBLv78xSCXWhfEg&s",
+    "pushparaj ojha": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYz-chjBK2v8fnVGBq70nM8cEBk55Qj0flqN4RF0SUhQ&s=10",
+    "sushil pandey": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSe2xCJC1vuL7ubRDVO3iISqd76gaJpoCHpVkc3F3vAcA&s=10",
+    "samragyee rl shah": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPtgxZtn0CxUHxyqesctGMLN8d7fr6IltinsE76EvQrA&s=10",
+    "aruna karki": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbNxvUIhCzV8FQOItZ94Lg8V3uYf1sXGK5UjO-Mfb8ug&s",
+    "suhana thapa": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZmXZnrktg9Dh8wt2eAYHo8JD6lPZ9Sgg7MW8LyB-UZw&s=10",
+    "nirajan pradhan": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7vUaG5Q27n73H5ukgSNYyHeeb-ogYL_MMAb9nOSSg_Q&s=10",
+    "raj ghimire": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRg2uvNsL5s4m4678wW5InLl9pCGJCrzCraAdFzU6CXJQ&s=10",
+    "bishal pokhrel": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvZqybrFSHl8_dXhzL-34ou6oWMkhhiZu24D6-S1UZ1A&s=10",
+    "surakshya panta": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsENTV6Z9XLeXK5LvoR1Q2SlCxykxHMHAVOLUcQHo0uQ&s=10",
+}
 
 // Helper: looks up the real photo by name; falls back to an avatar
 const createCastMember = (name) => {
@@ -237,6 +389,7 @@ const createCastMember = (name) => {
 
 // Public list of cast members with photos (for reference / fallback)
 export const dummyCastsData = [
+    "Mukun Bhusal",
     "Rajesh Hamal",
     "Bhuwan K.C.",
     "Nikhil Upreti",
@@ -330,7 +483,6 @@ export const dummyCastsData = [
 "Hari Kuma Bhandari",
 "Mahendra Mainali",
 "Prakash Ban",
-"Gauranga Banjara",
 "Anjasha Rijal",
 "Jitu Nepal",
 "Niti Shah",
@@ -381,7 +533,6 @@ export const dummyCastsData = [
 "Jvis Shrestha",
 "Mahendra Mainali",
 "Prakash Ban",
-"Gauranga Banjara",
 "Anjasha Rijal",
 "Jitu Nepal",
 "Niti Shah",
@@ -418,7 +569,7 @@ export const dummyCastsData = [
 "Sushil Raj Pandey",
 "Praween Khatiwada",
 "Kameshwor Chaurasiya",
-"Bipin Karki",
+
 
 "Sunil Thapa",
 "Ramesh Upreti",
@@ -443,7 +594,7 @@ export const dummyCastsData = [
 
 "Khagendra Lamichhane",
 "Barsha Siwakoti",
-"Bipin Karki",
+
 "Rabindra Singh Baniya",
 "Prakash Ghimire",
 "Sushil Pandey",
@@ -476,21 +627,21 @@ export const dummyCastsData = [
 "Shishir Bangdel",
 "Buddhi Tamang",
 
-"Bipin Karki",
+
 "Aruna Karki",
 "Dayahang Rai",
 "Gaumaya Gurung",
 "Priyanka Karki",
 "Shilpa Maskey",
 
-"Bipin Karki",
+
 "Keki Adhikari",
 "Arpan Thapa",
 "Mahesh Tripathi",
 "Prakash Ghimire",
 "Kamal Mani Nepal",
 
-"Anmol K.C.",
+
 "Suhana Thapa",
 "Salon Basnet",
 "Nirajan Pradhan",
@@ -502,7 +653,7 @@ export const dummyCastsData = [
 "Karma Shakya",
 "Prakash Ghimire",
 "Sushil Raj Pandey",
-"Bipin Karki",
+
 
 "Amir Gautam",
 "Raj Ghimire",
@@ -511,7 +662,7 @@ export const dummyCastsData = [
 "Bishal Pokhrel",
 "Sushil Raj Pandey",
 
-"Bipin Karki",
+
 "Rabindra Singh Baniya",
 "Rabindra Jha",
 "Barsha Raut",
@@ -533,6 +684,7 @@ export const dummyShowsData = [
         "_id": "1383481",
         "id": 1383481,
         "title": "Sarangi: A Journey of Purna Bahadur",
+        "trailer": "https://www.youtube.com/watch?v=5zbtEmxEyGk",
         "overview": "In the heart of a remote village, Purna Bahadur Ko Sarangi weaves a poignant drama about the unbreakable bond between a struggling father and his son. Purna Bahadur, a humble and impoverished musician, clings to the hope of a better life through his beloved sarangi, an instrument that carries the echoes of his dreams and sacrifices.",
         "poster_path":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTgjALU6HsKMiC_VGey6MdHGTBtqqAQxl9RDLZb5STdg&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTN2zyRd8OSecoocHiNvgOzuIBMW2wvCOpomyDbGXxY4w&s=10",
@@ -566,12 +718,12 @@ export const dummyShowsData = [
         "_id": "1407012",
         "id": 1407012,
         "title": "Khusma",
+        "trailer": "https://www.youtube.com/watch?v=CRbG8XBkZkE&t=3s",
         "overview": "Set in the backdrop and the aftermath of Maoist Insurgency— Khusma endures separation from her husband and awaits his return, only to resign herself to her fate.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWgThKlEueXByylbamItBy6f4mxSzsyt_dG2gtUWuJsA&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH9BU9_O-wytGMFc5BJmCP7kLwsqDYWcVF6ZMVFLnEAQ&s=10",
         "genres": [
-            { "id": 18, "name": "Drama" },
-            { "id": 10749, "name": "Romance" }
+            { "id": 10749, "name": "Love" }
         ],
         "casts": [
             createCastMember("Dhiraj Magar"),
@@ -600,12 +752,12 @@ export const dummyShowsData = [
         "_id": "1368894",
         "id": 1368894,
         "title": "Chhakka Panja 5",
+        "trailer": "https://www.youtube.com/watch?v=_hBsVHlNOtA&t=9s",
         "overview": "The king is happily living in his country with his family. The ups and downs in his marital life will increase and he will have to leave the country. He will not give his dreams to his desires. He is ready to go abroad. On the other hand, when he tries to find happiness, the emotional boundaries between him and his relatives stop, which makes him hurt. What will the King decide next?",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSP9Bt2w_zd59ve5fpgf84bZQxxQb9ps8ifbC8yO8BKwA&s",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCPOG7NsARXB1maA_Bnqj2b5K3tVwCVk-vMRHx5g7oPQ&s=10",
         "genres": [
-            { "id": 35, "name": "Comedy" },
-            { "id": 18, "name": "Drama" }
+            { "id": 35, "name": "Comedy" }
         ],
         "casts": [
             createCastMember("Deepak Raj Giri"),
@@ -628,11 +780,11 @@ export const dummyShowsData = [
         "_id": "1289134",
         "id": 1289134,
         "title": "Boksi Ko Ghar",
+        "trailer": "https://www.youtube.com/watch?v=QcbIDqe9Nkk",
         "overview": "A journalist uncovers a tale of abuse whilst investigating witchcraft accusations in a remote village.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS-jIgexn2BRScnuBvig0qb7sV0aZ4rTrBPnnOom2Syyg&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnKYbWONtNd1GvjHCZOWMXlqGmTNXkgIgCfi5nAI7uUQ&s=10",
         "genres": [
-            { "id": 53, "name": "Thriller" },
             { "id": 18, "name": "Drama" }
         ],
         "casts": [
@@ -657,11 +809,11 @@ export const dummyShowsData = [
         "_id": "1390713",
         "id": 1390713,
         "title": "12 Gaun",
+        "trailer": "https://www.youtube.com/watch?v=Tc0ZtDdNkX8&t=4s",
         "overview": "A son's quest for vengeance against a tyrannical village chief who murdered his parents. The chief rules through fear, oppressing villagers with his gang, forbidding escape. The son must confront the chief's ruthless reign to seek justice.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfrP7LTuaxIdq5sXbmXlKAeXFDi4AT9yaIDVqcAKhTZg&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsu48AN5y-vy_aRgdVSFSLkZsYn4W0IJk5rK29a5uVoQ&s=10",
         "genres": [
-            { "id": 28, "name": "Action" },
             { "id": 18, "name": "Drama" }
         ],
         "casts": [
@@ -693,13 +845,13 @@ export const dummyShowsData = [
     {
         "_id": "1383894",
         "id": 1383894,
-        "title": "Pooja, Sir",
+        "title": "Pooja, Sir",        
+        "trailer": "https://www.youtube.com/watch?v=wnfYt2KvBqI",
         "overview": "When two boys are kidnapped in a border town in Nepal, Detective Inspector Pooja is sent from Kathmandu to solve the case. But when she arrives, the brewing political unrest and violent protests throw her off course, and she is forced to seek help from Mamata, a local Madhesi policewoman.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSqPoxNjzq3QpXakL37cgX1hE7npYeZJsGBmwDTF9H9zQ&s=10",
         "backdrop_path": "https://image.tmdb.org/t/p/original/poojaSirBackdrop.jpg",
         "genres": [
-            { "id": 80, "name": "Crime" },
-            { "id": 53, "name": "Thriller" }
+            { "id": 18, "name": "Drama" }
         ],
         "casts": [
             createCastMember("Asha Magrati"),
@@ -725,13 +877,14 @@ export const dummyShowsData = [
     {
         "_id": "1385265",
         "id": 1385265,
-        "title": "Gharjwai",
+        "title": "Gharjwai",   
+        "trailer": "https://www.youtube.com/watch?v=1WajDWLXuVU",
         "overview": "\"Gharjwai\" revolves around the intertwined lives of three main characters: a seasoned farmer, a spirited young woman, and a mysterious stranger. As secrets unravel and emotions collide, the film explores themes of love, sacrifice, and redemption.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDjAHq8RyX8EG4Eh8EU_k6txFOiZNk3CDo5Z6hQNj4aQ&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHLTmu2qJzG7fA-z9cyK2WghMcjnkHFQyrzF98p-KdRw&s=10",
         "genres": [
-            { "id": 18, "name": "Drama" },
-            { "id": 10749, "name": "Romance" }
+            { "id": 10749, "name": "Love" },
+            { "id": 35, "name": "Comedy" }
         ],
         "casts": [
             createCastMember("Dayahang Rai"),
@@ -758,6 +911,7 @@ export const dummyShowsData = [
         "_id": "1408707",
         "id": 1408707,
         "title": "Pujar Sarki",
+        "trailer": "https://www.youtube.com/watch?v=0JlBb1KuzNE&t=8s",
         "overview": "Three individuals unite against societal norms perpetuating caste discrimination, facing challenges in their collective struggle to defy the existing caste-based social order.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwR3SPZsF7_YaK-JAWBqfOoT7BalfMddbo6tzUbAuR0w&s",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStJHb7h31a-ls9J802akr61r26aq6AbSnegsZygteE0A&s=10",
@@ -792,11 +946,12 @@ export const dummyShowsData = [
         "_id": "1383898",
         "id": 1383898,
         "title": "Mummy",
+        "trailer": "https://www.youtube.com/watch?v=z2mkMOupSok",
         "overview": "After the tragic loss of their beloved family dog, a daughter adopts a mysterious black cat, unwittingly inviting dark forces that threaten to tear her family apart.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq3h40dy7V3nOJ6Wvhkyh4UcS2X7k9XI-TJ1co-N18TA&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ6THT2ZrPVNWNpc07Jd_5xBbHmlJ2jdn80WMyAyPPGXw&s=10",
         "genres": [
-            { "id": 27, "name": "Horror" }
+            { "id": 18, "name": "Drama" }
         ],
         "casts": [
             createCastMember("Priyanka Karki"),
@@ -824,14 +979,15 @@ export const dummyShowsData = [
         "_id": "1383488",
         "id": 1383488,
         "title": "Eternal Kinship",
+        "trailer": "https://www.youtube.com/watch?v=TQfhbH7M808",
         "overview": "After unforeseeably running away with her lover, 10 year old Suresh must deal with the ordeal of life without a sister figure.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdUySXMbRm0q_mMgzc0XbCT8jbaPrkNz0be-8JUbbFUw&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHuBUZ7zW0yjQGx9N8X4tG4YQX2SPp_OO-C6Be7yIMo45btS4H8HmCI7s&s=10",
         "genres": [
-            { "id": 18, "name": "Drama" }
+            { "id": 10751, "name": "Family" }
         ],
         "casts": [
-            createCastMember("Gauranga Banjara"),
+         
             createCastMember("Anjasha Rijal")
         ],
         "release_date": "2025-07-21",
@@ -846,12 +1002,12 @@ export const dummyShowsData = [
         "_id": "1345678",
         "id": 1345678,
         "title": "Jwai Saab",
+        "trailer": "https://www.youtube.com/watch?v=fC1XG50kzQc",
         "overview": "Disheartened by his home life, Gobardhan's fate takes a turn when he hears an advertisement on the radio offering the chance to become a live-in son-in-law. After winning several competitions with great effort, Gobardhan embarks on the unpredictable journey of becoming a husband in a traditional Nepali setting.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTt-X06cEehjvXk41QF-QKRzlMGyMLm50X1xJ8o-vq1vw&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkBHnPhhMq_NLjVREptQRjfLcn_srxsQriXsDRq6udrg&s=10",
         "genres": [
-            { "id": 35, "name": "Comedy" },
-            { "id": 18, "name": "Drama" }
+            { "id": 35, "name": "Comedy" }
         ],
         "casts": [
             createCastMember("Jitu Nepal"),
@@ -878,10 +1034,12 @@ export const dummyShowsData = [
         "_id": "1413287",
         "id": 1413287,
         "title": "Gunyo Cholo: A Girl Coming of Age Story",
+        "trailer": "https://www.youtube.com/watch?v=3Yar3NOF7Gs",
         "overview": "Gulabi is a transwoman groomed by her patriarchal father to join the military. When her father disowns her, Gulabi ends up living a life of prostitution in Kathmandu.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBJ6jqD312ZJRDZEL7tNRTgICaz-qZGeoRANb4n0X1Dw&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2QZFn-bftnlzxahQLh7D9ADkYQ9IYo1FNWYgbDlyvHg&s=10",
         "genres": [
+            { "id": 10751, "name": "Family" },
             { "id": 18, "name": "Drama" }
         ],
         "casts": [
@@ -905,12 +1063,12 @@ export const dummyShowsData = [
         "_id": "1408443",
         "id": 1408443,
         "title": "Maijharo",
+        "trailer": "https://www.youtube.com/watch?v=ckDMJFOVTxU",
         "overview": "A man's desperate fight to save his father's graveyard from a powerful businessman is complicated by the return of his former lover.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJmQVaHChMc-5ZIMo_SPk91VtyoUTgVAnB83-bL0jX-g&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTakgAQ2x2rr8KCXrWM6hBa6651QWqkCarcpWhk2GSmw&s",
         "genres": [
-            { "id": 18, "name": "Drama" },
-            { "id": 10749, "name": "Romance" }
+            { "id": 10749, "name": "Love" }
         ],
         "casts": [
             createCastMember("Dhiraj Magar"),
@@ -941,11 +1099,12 @@ export const dummyShowsData = [
         "_id": "1418956",
         "id": 1418956,
         "title": "Balidan",
+        "trailer": "https://www.youtube.com/watch?v=ZtZSSgDDXrk",
         "overview": "In the remote corner of the country lies Bhilmaghat, a village that looks like paradise from the outside. Beneath its beauty hides a kingdom of exploitation and fear ruled by a hypocritical priest 'Baba'. A boy named Abhay survives a horrific ritual sacrifice with the help of Bhavani, who plants the seed of revolt—only to lose her husband in a direct clash with Baba. Years later, Abhay returns to seek vengeance.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRhCYhPf7TZeGiwy2Tsqvsa1ldxSffScZ4IPLp5FicJyg&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrIKaVZyNny5A2BqTb5K9r4I4aS12Zdj2r6-iEYNZIcA&s=10",
         "genres": [
-            { "id": 28, "name": "Action" },
+            { "id": 10752, "name": "Political" },
             { "id": 18, "name": "Drama" }
         ],
         "casts": [
@@ -973,12 +1132,13 @@ export const dummyShowsData = [
         "_id": "1416319",
         "id": 1416319,
         "title": "Maitighar",
+        "trailer": "https://www.youtube.com/watch?v=r0O4yAFoVVU",
         "overview": "Maitighar follows Maya, a widow struggling to raise her son after her husband's death. Facing societal judgment and hardships, she battles to rebuild her life, highlighting themes of love, loss, and resilience in a conservative society.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVc-cVmvC8Esph2HctK2-4rY7ODb7PeQL_3y6-bEE_jA&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuZ3p6rWoHW64uSjXM4hYetY4pBZQG7oNwvwUf20QP5A&s=10",
         "genres": [
-            { "id": 18, "name": "Drama" },
-            { "id": 10749, "name": "Romance" }
+            { "id": 10749, "name": "Love" },
+            { "id": 18, "name": "Drama" }
         ],
         "casts": [
             createCastMember("Kedar Prasad Ghimire"),
@@ -1001,12 +1161,13 @@ export const dummyShowsData = [
         "_id": "1419904",
         "id": 1419904,
         "title": "Jerry on Top",
+        "trailer": "https://www.youtube.com/watch?v=aL6bdQBa74g",
         "overview": "Jerry On Top is a Nepali romantic drama that continues the emotional journey of Jerry, a charming yet introspective young man. Returning to Nepal after years abroad, Jerry seeks to reconnect with his roots and rediscover meaning in life beyond fleeting fame and relationships. His path crosses with Aanchal, a passionate and grounded woman who challenges his worldview and inspires him to grow emotionally.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRW9HH43yO6Zf8cubElhc8fKnqvZuIevMVAog5OTNZ6YA&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1XoExE27lMTTNIfuCb31lGSF0otKiQ5IQrOHZm8R3ug&s=10s",
         "genres": [
-            { "id": 18, "name": "Drama" },
-            { "id": 10749, "name": "Romance" }
+            { "id": 10749, "name": "Love" },
+            { "id": 35, "name": "Comedy" }
         ],
         "casts": [
             createCastMember("Anmol KC"),
@@ -1028,11 +1189,11 @@ export const dummyShowsData = [
         "_id": "1422453",
         "id": 1422453,
         "title": "Aa Bata Aama",
+        "trailer": "https://www.youtube.com/watch?v=kv-Yn7Xyu2I",
         "overview": "Aa Bata Aama is a heartfelt story set in a serene Nepali village, following a loving couple who are blessed with a son, Krishna, after years of hope and prayer. The film explores the deep bond between a mother and her son as he prepares to travel abroad for a better future.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToE-CQV0l912Ll2r6ZhdhW9ElvZJNu_NQN8tHvReC73Q&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT43MoLZVWpJkbJ-dfSVSUFtgDhqAO_7Wo6sP2IiSeqIw&s=10",
         "genres": [
-            { "id": 18, "name": "Drama" },
             { "id": 10751, "name": "Family" }
         ],
         "casts": [
@@ -1061,12 +1222,13 @@ export const dummyShowsData = [
         "_id": "1425581",
         "id": 1425581,
         "title": "Unko Sweater",
+        "trailer": "https://www.youtube.com/watch?v=8vafCOeuH_A",
         "overview": "A tender romantic drama set in the serene hills of eastern Nepal. The film explores the quiet bond between Dharanidhar Kafle, a reserved young man from a traditional Brahmin family, and Phool, a spirited girl from the Gurung community, as they navigate love, culture, and family expectations.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLiepWzIqusSece65I1g8XHuYfVmtpJhjSwaC22qywVA&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTISGdyLOaUBRmkBiLFgQxnNhkUenk4rbBQFI55nTkAog&s=10",
         "genres": [
-            { "id": 18, "name": "Drama" },
-            { "id": 10749, "name": "Romance" }
+            { "id": 10749, "name": "Love" },
+            { "id": 18, "name": "Drama" }
         ],
         "casts": [
             createCastMember("Bipin Karki"),
@@ -1092,11 +1254,13 @@ export const dummyShowsData = [
         "_id": "1428712",
         "id": 1428712,
         "title": "Jaari 2: Song of Chyabrung",
+        "trailer": "https://www.youtube.com/watch?v=qa7tHd560cE",
         "overview": "Continuing the story of the first film, Jaari 2 follows the journey of Namsang and his wife Hangma as they embark on a new chapter of their married life. The film's narrative is deeply rooted in the culture of the Limbu community and revolves around the Chyabrung, a traditional drum that symbolizes love, identity and resilience.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ05z33zJnpz6FJuTz2YTpbGGmyx3LxDfFB5L3DWBOcwA&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDzAgJw-qxpBKxVMyXg1gnfhTkSDqh6uWnd9gyWOyCeA&s=10",
         "genres": [
-            { "id": 18, "name": "Drama" }
+            { "id": 18, "name": "Drama" },
+            { "id": 10751, "name": "Family" }
         ],
         "casts": [
             createCastMember("Dayahang Rai"),
@@ -1124,10 +1288,12 @@ export const dummyShowsData = [
         "_id": "1429905",
         "id": 1429905,
         "title": "Lalibazar",
+        "trailer": "https://www.youtube.com/watch?v=Kaxlqub20yY",
         "overview": "LALIBAZAR is a powerful social drama that explores the harsh socioeconomic realities and generational struggles of Nepal's marginalized Badi community. The story follows a mother's unwavering sacrifice to protect and educate her daughter, fighting against systemic exploitation while striving to secure a better future.",
         "poster_path": "https://m.media-amazon.com/images/M/MV5BMWI3NzFiOTgtMTFiMi00NTAxLTg0NGUtNDEzNTc5Yjc0NTM5XkEyXkFqcGc@._V1_.jpg",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsKHwwfy48qcX_cjKP76mg_E6J70pM4D65SjvgnBOUuiCqAaNtZxRsFWsc&s=10",
         "genres": [
+            { "id": 10752, "name": "Political" },
             { "id": 18, "name": "Drama" }
         ],
         "casts": [
@@ -1160,6 +1326,7 @@ export const dummyShowsData = [
         "_id": "1431123",
         "id": 1431123,
         "title": "Roll No. 1",
+        "trailer": "https://www.youtube.com/watch?v=leTb_e4kR60",
         "overview": "A story of a boy struggling to fulfill his father's dream of winning a scholarship from the government. Set against the backdrop of rural Nepal, the film dives deep into student life, the education system, and the psychological pressure faced by children.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgJH9Lp2Y9pnP5gc2kgGdGs7FChkkTv6W6ZqZhWv2vEPr5AfA7A2TyT90&s=10",
         "backdrop_path": "https:https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRRkshPk0sSX2OBR-i_ItFbxwBNis9k7atla7g5QFlaGg&s=10",
@@ -1192,6 +1359,7 @@ export const dummyShowsData = [
         "_id": "1433584",
         "id": 1433584,
         "title": "Anjila",
+        "trailer": "https://www.youtube.com/watch?v=9KQpailBOLM",
         "overview": "Based on the real-life story of Anjila Tumbapo Subba, the captain and number one goalkeeper of Nepal's national women's football team. The film traces her rise from a restrictive home life to leading the squad, highlighting her struggles against social expectations.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6YslyjO-vGh-HemItmUKBgXFTo4n7FPA93XZvTvJAMA&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1VbHsqC3990ZziUNkFqXTTHiNQEgNI24TuW_Wr2TZ9Q&s=10",
@@ -1226,6 +1394,7 @@ export const dummyShowsData = [
         "_id": "1435718",
         "id": 1435718,
         "title": "Paran",
+        "trailer": "https://www.youtube.com/watch?v=utD71nSDYD8",
         "overview": "Paran is a heartfelt family drama about Dharmanath, who treasures his children as his 'essence of life' and dreams of growing old in their love. Set in Dhankuta, the film beautifully portrays love, legacy, and the true meaning of family, focusing on emotional relationships and companionship rather than physical existence.",
         "poster_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPGmlcgjFt91Fm-J_Jd41TFKC1jpGczfkOvpDLvuSlMg&s=10",
         "backdrop_path": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQpxPyGBCv6n5JduWHR5iGaomLnk1DeHwmzB9t-bbmpA&s=10",
@@ -1255,20 +1424,16 @@ export const dummyShowsData = [
         "runtime": 167,
         "theaters": ["QFX Civil Mall", "QFX Chhaya Center", "QFX Labim Mall", "INI Lotse Cinemas"]
     },
-//-----------------------------------------------------------------
-//------------------------------- MEW MOVIES------------------------
-//-----------------------------------------------------------------
-
      {
         "_id": "1437001",
         "id": 1437001,
         "title": "Maya Ko Katha",
+        "trailer": "https://www.youtube.com/watch?v=mA5v8KPu3CU&list=RDmA5v8KPu3CU&start_radio=1",
         "overview": "A heartwarming love story about Aarav, a carefree young man from Kathmandu, and Srijana, a hardworking girl from Pokhara. Their unexpected meeting turns into a beautiful journey of love, laughter, and family acceptance.",
         "poster_path": "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800",
         "backdrop_path": "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=1600",
         "genres": [
-            { "id": 10749, "name": "Romance" },
-            { "id": 18, "name": "Drama" }
+            { "id": 10749, "name": "Love" }
         ],
         "casts": [
             createCastMember("Pradeep Khadka"),
@@ -1290,12 +1455,13 @@ export const dummyShowsData = [
     "_id": "1437003",
     "id": 1437003,
     "title": "Jaari",
+    "trailer": "https://www.youtube.com/watch?v=5O3K8JXch1E",
     "overview": "Set in eastern Nepal, Jaari follows Namsang and Hangma as their troubled relationship becomes entangled with traditional customs, family expectations and the cultural practice of compensation after elopement.",
    "poster_path": "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/jaari.jpg",
     "backdrop_path": "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/jaari.jpg",
     "genres": [
-        { id: 18, name: "Drama" },
-        { id: 10749, name: "Romance" }
+        { id: 10749, name: "Love" },
+        { id: 18, name: "Drama" }
     ],
     "casts": [
         createCastMember("Dayahang Rai"),
@@ -1317,17 +1483,16 @@ export const dummyShowsData = [
    {
     "_id": "460032",
     "id": 460032,
-    "title": "Pashupati Prasad",
-   " overview":
-        "Pashupati Prasad comes to Kathmandu with the dream of earning money and repaying his father's debt. His journey exposes him to poverty, friendship, deception, struggle and the harsh realities of life in the capital.",
+    "title": "Pashupati Prasad",  
+    "trailer": "https://www.youtube.com/watch?v=O3GRxW9IkTg",
+    "overview":"Pashupati Prasad comes to Kathmandu with the dream of earning money and repaying his father's debt. His journey exposes him to poverty, friendship, deception, struggle and the harsh realities of life in the capital.",
     "poster_path":
         "https://image.tmdb.org/t/p/original/9jNJm1zEWXMpdhMTOwbGgiQnOpO.jpg",
-   " backdrop_path":
+   "backdrop_path":
         "https://image.tmdb.org/t/p/original/9jNJm1zEWXMpdhMTOwbGgiQnOpO.jpg",
-  "genres": [
+    "genres": [
         { id: 35, name: "Comedy" },
-        { id: 18, name: "Drama" },
-        { id: 10749, name: "Romance" }
+        { id: 18, name: "Drama" }
     ],
     "casts": [
         createCastMember("Khagendra Lamichhane"),
@@ -1349,6 +1514,7 @@ export const dummyShowsData = [
     "_id": "1007087",
     "id": 1007087,
     "title": "Prem Geet 3",
+    "trailer": "https://www.youtube.com/watch?v=XYw5eosrB7k",
     "overview":
         "Prem, the younger prince of the Kingdom of Khazaag, is destined to become king. His greatest challenge comes when he falls in love with Geet, forcing him to choose between royal responsibilities and his love.",
    " poster_path":
@@ -1356,9 +1522,8 @@ export const dummyShowsData = [
     "backdrop_path":
         "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/premgeet3.jpg",
     "genres": [
-        { id: 28, name: "Action" },
-        { id: 36, name: "Historical" },
-        { id: 10749, name: "Romance" }
+        { id: 10749, name: "Love" },
+        { id: 18, name: "Drama" }
     ],
     "casts": [
         createCastMember("Pradeep Khadka"),
@@ -1381,11 +1546,13 @@ export const dummyShowsData = [
     { "_id": "100005", 
         "id": 100005, 
         "title": "Chhakka Panja", 
+        "trailer": "https://www.youtube.com/watch?v=msDN-Y0HIME",
         "overview": "A group of friends enjoys their carefree lives until marriage and family responsibilities change everything. The film combines comedy, friendship and social issues.", 
         "poster_path": "https://nepalimoviedb.com/media/cover-img/Chhakka_Panja-l_bELn5Pj.jpg",
         "backdrop_path": "https://image.tmdb.org/t/p/original/placeholder-chhakka-panja-backdrop.jpg", 
-        "genres": [ { "id": 35, "name": "Comedy" }, 
-        { "id": 18, "name": "Drama" } ], 
+        "genres": [
+            { "id": 35, "name": "Comedy" }
+        ], 
         "casts":
          [ createCastMember("Deepak Raj Giri"), 
             createCastMember("Priyanka Karki"), 
@@ -1403,6 +1570,7 @@ export const dummyShowsData = [
     "_id": "1437006",
     "id": 1437006,
     "title": "Kabaddi 4: The Final Match",
+    "trailer": "https://www.youtube.com/watch?v=zOJwj88rQuE",
     "overview":
         "Kaji tries to escape romantic complications by focusing on his teaching career, but the arrival of Shanti changes everything. Love, misunderstandings and family pressure create another hilarious chapter in the Kabaddi story.",
     "poster_path":
@@ -1411,7 +1579,7 @@ export const dummyShowsData = [
         "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/Kabaddi-4-The-Final-Match-nepali-movie.jpg",
     "genres": [
         { id: 35, name: "Comedy" },
-        { id: 18, name: "Drama" }
+        { id: 10749, name: "Love" }
     ],
     "casts": [
         createCastMember("Dayahang Rai"),
@@ -1434,6 +1602,7 @@ export const dummyShowsData = [
     "_id": "1437007",
    " id": 1437007,
     "title": "Nango Gaun",
+    "trailer": "https://www.youtube.com/watch?v=nwT-EuEYeBE",
     "overview":
         "A respected schoolteacher is encouraged by villagers to enter politics and challenge a powerful corrupt politician. The film explores corruption, political power, community and the desire for social change.",
     "poster_path":
@@ -1441,8 +1610,8 @@ export const dummyShowsData = [
     "backdrop_path":
         "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/nangogau.jpg",
     "genres": [
-        { id: 18, name: "Drama" },
-        { id: 10752, name: "Political" }
+        { id: 10752, name: "Political" },
+        { id: 18, name: "Drama" }
     ],
     "casts": [
         createCastMember("Dayahang Rai"),
@@ -1465,6 +1634,7 @@ export const dummyShowsData = [
     "_id": "1437008",
     "id": 1437008,
     "title": "Fulbari",
+    "trailer": "https://www.youtube.com/watch?v=gnuTqK0E6EE",
    " overview":
         "A family struggles to stay together when the mother's health condition exposes the emotional distance between parents and their grown children. The story explores family, responsibility and the meaning of being together.",
     "poster_path":
@@ -1472,7 +1642,6 @@ export const dummyShowsData = [
     "backdrop_path":
         "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/fulbari.jpg",
     "genres": [
-        { id: 18, name: "Drama" },
         { id: 10751, name: "Family" }
     ],
     "casts": [
@@ -1496,6 +1665,7 @@ export const dummyShowsData = [
     "_id": "1437009",
     "id": 1437009,
     "title": "Prasad 2",
+    "trailer": "https://www.youtube.com/watch?v=18LSFPz2Q70",
     "overview":
         "After years away from their village, an inter-caste couple returns with their son and must face the social discrimination and conflicts that forced them to leave in the first place.",
     "poster_path":
@@ -1503,9 +1673,9 @@ export const dummyShowsData = [
     "backdrop_path":
         "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/prasad2.jpg",
    " genres": [
-        { id: 18, name: "Drama" },
-        { id: 10749, name: "Romance" }
-    ],
+       { id: 10749, name: "Love" },
+       { id: 18, name: "Drama" }
+   ],
     "casts": [
         createCastMember("Bipin Karki"),
         createCastMember("Keki Adhikari"),
@@ -1526,6 +1696,7 @@ export const dummyShowsData = [
    " _id": "1437014",
    " id": 1437014,
     "title": "A Mero Hajur 4",
+    "trailer": "https://www.youtube.com/watch?v=C8JZRySDcZQ",
     "overview":
         "Prem and Arya meet and fall in love, but unexpected circumstances begin to challenge their relationship. The romantic drama follows their journey through love, family and difficult choices.",
     "poster_path":
@@ -1533,11 +1704,10 @@ export const dummyShowsData = [
     "backdrop_path":
         "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/amerohajur4.jpg",
    " genres": [
-        { id: 18, name: "Drama" },
-        { id: 10749, name: "Romance" }
-    ],
+       { id: 10749, name: "Love" }
+   ],
     "casts": [
-        createCastMember("Anmol K.C."),
+        createCastMember("Anmol KC"),
         createCastMember("Suhana Thapa"),
         createCastMember("Salon Basnet"),
         createCastMember("Nirajan Pradhan"),
@@ -1556,6 +1726,7 @@ export const dummyShowsData = [
     "_id": "1437017",
     "id": 1437017,
     "title": "Loot",
+    "trailer": "https://www.youtube.com/watch?v=QUsgST4Zj5Y",
     "overview":
         "Four desperate men from different backgrounds come together to rob a bank in Kathmandu. Their plan looks simple, but greed, betrayal and unexpected problems turn the robbery into chaos.",
     "poster_path":
@@ -1563,9 +1734,8 @@ export const dummyShowsData = [
     "backdrop_path":
         "https://image.tmdb.org/t/p/original/loot-nepali-movie.jpg",
     "genres": [
-        { id: 80, name: "Crime" },
-        { id: 53, name: "Thriller" },
-        { id: 35, name: "Comedy" }
+        { id: 35, name: "Comedy" },
+        { id: 10752, name: "Political" }
     ],
     "casts": [
         createCastMember("Saugat Malla"),
@@ -1587,6 +1757,7 @@ export const dummyShowsData = [
     "_id": "1437020",
     "id": 1437020,
     "title": "Seto Bagh",
+    "trailer": "https://www.youtube.com/watch?v=wv5CElPlbdA",
     "overview":
         "A historical drama set during the Rana regime, exploring royal power, political conflict, loyalty and betrayal within the palace.",
     "poster_path":
@@ -1594,7 +1765,7 @@ export const dummyShowsData = [
     "backdrop_path":
         "https://image.tmdb.org/t/p/original/seto-bagh-nepali.jpg",
     "genres": [
-        { id: 36, name: "Historical" },
+        { id: 10752, name: "Political" },
         { id: 18, name: "Drama" }
     ],
     "casts": [
@@ -1614,18 +1785,17 @@ export const dummyShowsData = [
     "theaters": ["QFX Civil Mall", "Big Movies"]
 },
 {
-   " _id": "1437025",
+   "_id": "1437025",
     "id": 1437025,
     "title": "Chapali Height",
-   " overview":
-        "A mysterious woman becomes involved with two friends, leading them into a dangerous situation filled with attraction, jealousy and betrayal.",
-   " poster_path":
+    "trailer": "https://www.youtube.com/watch?v=gnkGIywUg08",
+    "poster_path": "",   "overview":"A mysterious woman becomes involved with two friends, leading them into a dangerous situation filled with attraction, jealousy and betrayal.",
+   "poster_path":
         "https://tfnnew.in-maa-1.linodeobjects.com/uploads/medias/thumbnail-md/Chapali_Height.jpg",
     "backdrop_path":
         "https://image.tmdb.org/t/p/original/chapali-height-nepali.jpg",
     "genres": [
-        { id: 53, name: "Thriller" },
-        { id: 80, name: "Crime" },
+        { id: 10749, name: "Love" },
         { id: 18, name: "Drama" }
     ],
     "casts": [
@@ -1641,14 +1811,15 @@ export const dummyShowsData = [
     "tagline": "Trust can be dangerous.",
     "vote_average": 6.8,
     "vote_count": 300,
-   " runtime": 120,
+   "runtime": 120,
     "theaters": ["QFX Civil Mall", "Ranjana Cineplex"]
 },
 {
     "_id": "1437029",
     "id": 1437029,
-   " title": "Jatrai Jatra",
-   " overview":
+   "title": "Jatrai Jatra",
+    "trailer": "https://www.youtube.com/watch?v=gCtAREckk1E",
+   "overview":
         "A group of friends once again find themselves involved with money and criminals. Their attempt to solve the problem creates a chain of comic situations.",
     "poster_path":
         "https://www.impawards.com/intl/nepal/2019/thumbs/imp_jatrai_jatra.jpg",
@@ -1656,10 +1827,9 @@ export const dummyShowsData = [
         "https://image.tmdb.org/t/p/original/jatrai-jatra-nepali.jpg",
     "genres": [
         { id: 35, name: "Comedy" },
-        { id: 80, name: "Crime" },
         { id: 18, name: "Drama" }
     ],
-   " casts": [
+   "casts": [
         createCastMember("Bipin Karki"),
         createCastMember("Rabindra Singh Baniya"),
         createCastMember("Rabindra Jha"),
@@ -1679,6 +1849,7 @@ export const dummyShowsData = [
     "_id": "1437031",
     "id": 1437031,
     "title": "Aama",
+    "trailer": "https://www.youtube.com/watch?v=RRv_IJSQweM",
     "overview":
         "A young man living away from Nepal returns home after receiving difficult news about his mother. His return forces him to reconnect with his family, homeland and responsibilities.",
     "poster_path":
@@ -1686,8 +1857,8 @@ export const dummyShowsData = [
     "backdrop_path":
         "https://image.tmdb.org/t/p/original/aama-nepali.jpg",
     "genres": [
-        { id: 18, name: "Drama" },
-        { id: 10751, name: "Family" }
+        { id: 10751, name: "Family" },
+        { id: 18, name: "Drama" }
     ],
     "casts": [
         createCastMember("Mithila Sharma"),

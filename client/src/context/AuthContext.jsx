@@ -1,660 +1,421 @@
 import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
 } from "react";
-
 import { useNavigate } from "react-router-dom";
-
-// =====================================================
-// CREATE CONTEXT
-// =====================================================
 
 const AuthContext = createContext();
 
-// =====================================================
-// API URL
-// =====================================================
-
-const API_URL = "http://localhost:5000";
-
-// =====================================================
-// AUTH PROVIDER
-// =====================================================
-
 export const AuthProvider = ({ children }) => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    // =================================================
-    // USER
-    // =================================================
+  const [user, setUser] = useState(null);
+  const [admin, setAdmin] = useState(null);
+  const [userToken, setUserToken] = useState(null);
+  const [adminToken, setAdminToken] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-    const [user, setUser] = useState(null);
+  // Guards to prevent duplicate or concurrent verification
+  const isVerifying = useRef(false);
+  const hasVerified = useRef(false);
 
-    // =================================================
-    // ADMIN
-    // =================================================
+  // ---------- SESSION RESTORATION (executes only once) ----------
+  useEffect(() => {
+    // Prevent re-runs
+    if (hasVerified.current || isVerifying.current) return;
 
-    const [admin, setAdmin] = useState(null);
+    isVerifying.current = true;
 
-    // =================================================
-    // LOADING
-    // =================================================
+    const verifySessions = async () => {
+      try {
+        const storedAdminToken = localStorage.getItem("adminToken");
+        const storedUserToken =
+          localStorage.getItem("userToken") || localStorage.getItem("token");
+        const savedUser = localStorage.getItem("userUser");
+        const savedAdmin = localStorage.getItem("adminUser");
 
-    const [loading, setLoading] = useState(true);
-
-    // =================================================
-    // LOAD SAVED LOGIN SESSION
-    // =================================================
-
-    useEffect(() => {
-        try {
-            const savedUser =
-                localStorage.getItem("userUser");
-
-            const savedAdmin =
-                localStorage.getItem("adminUser");
-
-            const token =
-                localStorage.getItem("token");
-
-            // =============================================
-            // RESTORE ADMIN
-            // =============================================
-
-            if (savedAdmin && token) {
-                const adminData =
-                    JSON.parse(savedAdmin);
-
-                if (
-                    adminData &&
-                    adminData.role === "admin"
-                ) {
-                    setAdmin(adminData);
-                    setUser(null);
-                } else {
-                    localStorage.removeItem("adminUser");
-                    localStorage.removeItem("token");
-                }
+        // 1. Admin session
+        if (storedAdminToken) {
+          try {
+            const res = await fetch("http://localhost:5000/admin/profile", {
+              method: "GET",
+              headers: { Authorization: `Bearer ${storedAdminToken}` },
+            });
+            const data = await res.json();
+            if (res.ok && data.success && data.admin) {
+              setAdmin(data.admin);
+              setAdminToken(storedAdminToken);
+            } else if (savedAdmin) {
+              setAdmin(JSON.parse(savedAdmin));
+              setAdminToken(storedAdminToken);
+            } else {
+              localStorage.removeItem("adminToken");
+              localStorage.removeItem("adminUser");
             }
-
-            // =============================================
-            // RESTORE NORMAL USER
-            // =============================================
-
-            else if (savedUser && token) {
-                const userData =
-                    JSON.parse(savedUser);
-
-                if (
-                    userData &&
-                    userData.role === "user"
-                ) {
-                    setUser(userData);
-                    setAdmin(null);
-                } else {
-                    localStorage.removeItem("userUser");
-                    localStorage.removeItem("token");
-                }
+          } catch {
+            if (savedAdmin) {
+              setAdmin(JSON.parse(savedAdmin));
+              setAdminToken(storedAdminToken);
+            } else {
+              localStorage.removeItem("adminToken");
+              localStorage.removeItem("adminUser");
             }
+          }
+        }
 
-            // =============================================
-            // NO SESSION
-            // =============================================
-
-            else {
-                setUser(null);
-                setAdmin(null);
+        // 2. User session
+        if (storedUserToken) {
+          let verifiedUser = null;
+          if (savedUser) {
+            try {
+              verifiedUser = JSON.parse(savedUser);
+            } catch {
+              verifiedUser = null;
             }
-        } catch (error) {
-            console.error(
-                "Error restoring login session:",
-                error
-            );
+          }
+          try {
+            const res = await fetch("http://localhost:5000/user/me", {
+              method: "GET",
+              headers: { Authorization: `Bearer ${storedUserToken}` },
+            });
+            const data = await res.json();
+            if (res.ok && data.success && data.user) {
+              verifiedUser = data.user;
+              localStorage.setItem("userUser", JSON.stringify(data.user));
+            }
+          } catch {
+            // fallback to cached user
+          }
 
-            localStorage.removeItem("userUser");
-            localStorage.removeItem("adminUser");
+          if (verifiedUser) {
+            setUser(verifiedUser);
+            setUserToken(storedUserToken);
+          } else {
+            localStorage.removeItem("userToken");
             localStorage.removeItem("token");
-
-            setUser(null);
-            setAdmin(null);
-        } finally {
-            setLoading(false);
+            localStorage.removeItem("userUser");
+          }
         }
-    }, []);
-
-    // =====================================================
-    // LOGIN
-    // =====================================================
-
-    const login = async (email, password) => {
-        try {
-            // IMPORTANT:
-            // Backend route should be:
-            // POST /api/user/login
-
-            const response = await fetch(
-                `${API_URL}/api/user/login`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-
-                    body: JSON.stringify({
-                        email: email
-                            .trim()
-                            .toLowerCase(),
-
-                        password,
-                    }),
-                }
-            );
-
-            // =============================================
-            // SAFELY READ RESPONSE
-            // =============================================
-
-            const contentType =
-                response.headers.get("content-type");
-
-            let data;
-
-            if (
-                contentType &&
-                contentType.includes("application/json")
-            ) {
-                data = await response.json();
-            } else {
-                const text = await response.text();
-
-                console.error(
-                    "Server returned non-JSON response:",
-                    text
-                );
-
-                throw new Error(
-                    `Server error: ${response.status}`
-                );
-            }
-
-            console.log(
-                "Login response:",
-                data
-            );
-
-            // =============================================
-            // LOGIN FAILED
-            // =============================================
-
-            if (
-                !response.ok ||
-                !data.success
-            ) {
-                throw new Error(
-                    data.message ||
-                    "Invalid email or password."
-                );
-            }
-
-            // =============================================
-            // GET USER + TOKEN
-            // =============================================
-
-            const loggedInUser =
-                data.user;
-
-            const token =
-                data.token;
-
-            // =============================================
-            // CHECK SERVER RESPONSE
-            // =============================================
-
-            if (
-                !loggedInUser ||
-                !token
-            ) {
-                throw new Error(
-                    "Invalid login response from server."
-                );
-            }
-
-            // =============================================
-            // ADMIN LOGIN
-            // =============================================
-
-            if (
-                loggedInUser.role === "admin"
-            ) {
-                // Remove normal user session
-                localStorage.removeItem(
-                    "userUser"
-                );
-
-                // Save token
-                localStorage.setItem(
-                    "token",
-                    token
-                );
-
-                // Save admin
-                localStorage.setItem(
-                    "adminUser",
-                    JSON.stringify(
-                        loggedInUser
-                    )
-                );
-
-                // Update state
-                setUser(null);
-                setAdmin(loggedInUser);
-
-                console.log(
-                    "Admin login successful"
-                );
-
-                console.log(
-                    "Admin:",
-                    loggedInUser
-                );
-
-                console.log(
-                    "Admin token saved:",
-                    localStorage.getItem("token")
-                );
-
-                return {
-                    ...loggedInUser,
-                    token,
-                };
-            }
-
-            // =============================================
-            // NORMAL USER LOGIN
-            // =============================================
-
-            if (
-                loggedInUser.role === "user"
-            ) {
-                // Remove admin session
-                localStorage.removeItem(
-                    "adminUser"
-                );
-
-                // Save token
-                localStorage.setItem(
-                    "token",
-                    token
-                );
-
-                // Save user
-                localStorage.setItem(
-                    "userUser",
-                    JSON.stringify(
-                        loggedInUser
-                    )
-                );
-
-                // Update state
-                setAdmin(null);
-                setUser(loggedInUser);
-
-                console.log(
-                    "User login successful"
-                );
-
-                console.log(
-                    "User:",
-                    loggedInUser
-                );
-
-                console.log(
-                    "User token saved:",
-                    localStorage.getItem("token")
-                );
-
-                return {
-                    ...loggedInUser,
-                    token,
-                };
-            }
-
-            // =============================================
-            // INVALID ROLE
-            // =============================================
-
-            throw new Error(
-                "Invalid account role."
-            );
-        } catch (error) {
-            console.error(
-                "Login error:",
-                error
-            );
-
-            throw error;
-        }
+      } catch (error) {
+        console.error("Session restoration error:", error);
+      } finally {
+        setLoading(false);
+        isVerifying.current = false;
+        hasVerified.current = true;
+      }
     };
 
-    // =====================================================
-    // SIGNUP
-    // =====================================================
+    verifySessions();
 
-    const signup = async (
-        name,
-        email,
-        password
-    ) => {
-        try {
-            // IMPORTANT:
-            // Backend route should be:
-            // POST /api/user/signup
+    // Safety timeout – never keep loading indefinitely
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.warn("⚠️ Forcing loading to false (timeout)");
+        setLoading(false);
+        isVerifying.current = false;
+        hasVerified.current = true;
+      }
+    }, 3000);
 
-            const response = await fetch(
-                `${API_URL}/api/user/signup`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-                    },
-
-                    body: JSON.stringify({
-                        name: name.trim(),
-
-                        email: email
-                            .trim()
-                            .toLowerCase(),
-
-                        password,
-                    }),
-                }
-            );
-
-            // =============================================
-            // SAFELY READ RESPONSE
-            // =============================================
-
-            const contentType =
-                response.headers.get("content-type");
-
-            let data;
-
-            if (
-                contentType &&
-                contentType.includes("application/json")
-            ) {
-                data = await response.json();
-            } else {
-                const text = await response.text();
-
-                console.error(
-                    "Server returned non-JSON response:",
-                    text
-                );
-
-                throw new Error(
-                    `Server error: ${response.status}`
-                );
-            }
-
-            console.log(
-                "Signup response:",
-                data
-            );
-
-            // =============================================
-            // SIGNUP FAILED
-            // =============================================
-
-            if (
-                !response.ok ||
-                !data.success
-            ) {
-                throw new Error(
-                    data.message ||
-                    "Could not create account."
-                );
-            }
-
-            // =============================================
-            // GET USER + TOKEN
-            // =============================================
-
-            const newUser =
-                data.user;
-
-            const token =
-                data.token;
-
-            // =============================================
-            // CHECK SERVER RESPONSE
-            // =============================================
-
-            if (
-                !newUser ||
-                !token
-            ) {
-                throw new Error(
-                    "Invalid signup response from server."
-                );
-            }
-
-            // =============================================
-            // SIGNUP ALWAYS CREATES NORMAL USER
-            // =============================================
-
-            // Remove admin session
-            localStorage.removeItem(
-                "adminUser"
-            );
-
-            // Save token
-            localStorage.setItem(
-                "token",
-                token
-            );
-
-            // Save user
-            localStorage.setItem(
-                "userUser",
-                JSON.stringify(
-                    newUser
-                )
-            );
-
-            // Update state
-            setAdmin(null);
-            setUser(newUser);
-
-            console.log(
-                "Signup successful"
-            );
-
-            console.log(
-                "New user:",
-                newUser
-            );
-
-            console.log(
-                "Signup token saved:",
-                localStorage.getItem("token")
-            );
-
-            return {
-                ...newUser,
-                token,
-            };
-        } catch (error) {
-            console.error(
-                "Signup error:",
-                error
-            );
-
-            throw error;
-        }
+    return () => {
+      clearTimeout(timeoutId);
     };
+  }, []); // ✅ Empty dependency array – runs once
 
-    // =====================================================
-    // CHECK LOGIN
-    // =====================================================
+  // ---------- AUTH FUNCTIONS (unchanged – all correct) ----------
+  const login = async (email, password) => {
+    try {
+      const response = await fetch("http://localhost:5000/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+        }),
+      });
 
-    const isLoggedIn = () => {
-        return !!(
-            user ||
-            admin
-        );
-    };
+      const data = await response.json();
 
-    // =====================================================
-    // REQUIRE LOGIN
-    // =====================================================
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Invalid email or password.");
+      }
 
-    const requireLogin = (action) => {
-        if (!isLoggedIn()) {
-            navigate("/login");
-            return false;
-        }
+      const loggedInUser = data.user;
+      const token = data.token;
 
-        if (
-            typeof action === "function"
-        ) {
-            action();
-        }
+      if (!loggedInUser || !token) {
+        throw new Error("Invalid login response from server.");
+      }
 
-        return true;
-    };
+      localStorage.setItem("userToken", token);
+      localStorage.setItem("userUser", JSON.stringify(loggedInUser));
+      setUser(loggedInUser);
+      setUserToken(token);
 
-    // =====================================================
-    // USER LOGOUT
-    // =====================================================
+      return { ...loggedInUser, token };
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
+  };
 
-    const logoutUser = () => {
-        localStorage.removeItem(
-            "token"
-        );
+  const loginAdmin = async (email, password) => {
+    try {
+      const response = await fetch("http://localhost:5000/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+        }),
+      });
 
-        localStorage.removeItem(
-            "userUser"
-        );
+      const data = await response.json();
 
-        setUser(null);
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Invalid admin credentials.");
+      }
 
-        navigate("/login");
-    };
+      const loggedInAdmin = data.admin || data.user;
+      const token = data.token;
 
-    // =====================================================
-    // ADMIN LOGOUT
-    // =====================================================
+      if (!loggedInAdmin || !token) {
+        throw new Error("Invalid admin login response from server.");
+      }
 
-    const logoutAdmin = () => {
-        localStorage.removeItem(
-            "token"
-        );
+      if (!loggedInAdmin.role) {
+        loggedInAdmin.role = "admin";
+      }
 
-        localStorage.removeItem(
-            "adminUser"
-        );
+      localStorage.setItem("adminToken", token);
+      localStorage.setItem("adminUser", JSON.stringify(loggedInAdmin));
+      setAdmin(loggedInAdmin);
+      setAdminToken(token);
 
-        setAdmin(null);
+      return { ...loggedInAdmin, token };
+    } catch (error) {
+      console.error("Admin login error:", error);
+      throw error;
+    }
+  };
 
-        navigate("/login");
-    };
+  const signup = async (name, email, mobile) => {
+    try {
+      const response = await fetch("http://localhost:5000/user/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          mobile: mobile.trim(),
+        }),
+      });
 
-    // =====================================================
-    // GENERAL LOGOUT
-    // =====================================================
+      const data = await response.json();
 
-    const logout = () => {
-        localStorage.removeItem(
-            "token"
-        );
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Could not create account.");
+      }
 
-        localStorage.removeItem(
-            "userUser"
-        );
+      return data;
+    } catch (error) {
+      console.error("Signup error:", error);
+      throw error;
+    }
+  };
 
-        localStorage.removeItem(
-            "adminUser"
-        );
+  const sendResetCode = async (email) => {
+    try {
+      const response = await fetch("http://localhost:5000/user/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
 
-        setUser(null);
-        setAdmin(null);
+      const data = await response.json();
 
-        navigate("/login");
-    };
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Could not send reset code.");
+      }
 
-    // =====================================================
-    // CONTEXT VALUE
-    // =====================================================
+      return data;
+    } catch (error) {
+      console.error("Send reset code error:", error);
+      throw error;
+    }
+  };
 
-    const value = {
-        user,
+  const resetPassword = async (email, code, newPassword) => {
+    try {
+      const response = await fetch("http://localhost:5000/user/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          code,
+          newPassword,
+        }),
+      });
 
-        admin,
+      const data = await response.json();
 
-        loading,
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Invalid or expired reset code.");
+      }
 
-        login,
+      return data;
+    } catch (error) {
+      console.error("Reset password error:", error);
+      throw error;
+    }
+  };
 
-        signup,
+  const googleAuth = async (idToken) => {
+    try {
+      const response = await fetch("http://localhost:5000/user/google-auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: idToken }),
+      });
 
-        logout,
+      const data = await response.json();
 
-        logoutUser,
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Google authentication failed.");
+      }
 
-        logoutAdmin,
+      const loggedInUser = data.user;
+      const token = data.token;
 
-        // =============================================
-        // LOGIN STATUS
-        // =============================================
+      if (!loggedInUser || !token) {
+        throw new Error("Invalid Google auth response from server.");
+      }
 
-        isUserLoggedIn: !!user,
+      localStorage.setItem("userToken", token);
+      localStorage.setItem("userUser", JSON.stringify(loggedInUser));
+      setUser(loggedInUser);
+      setUserToken(token);
 
-        isAdminLoggedIn: !!admin,
+      return { ...loggedInUser, token };
+    } catch (error) {
+      console.error("Google auth error:", error);
+      throw error;
+    }
+  };
 
-        isLoggedIn,
+  const logoutUser = () => {
+    localStorage.removeItem("userToken");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userUser");
+    setUser(null);
+    setUserToken(null);
+  };
 
-        // =============================================
-        // PROTECTED ACTION
-        // =============================================
+  const logoutAdmin = () => {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminUser");
+    setAdmin(null);
+    setAdminToken(null);
+  };
 
-        requireLogin,
-    };
+  const logout = () => {
+    localStorage.clear();
+    setUser(null);
+    setAdmin(null);
+    setUserToken(null);
+    setAdminToken(null);
+  };
 
-    // =====================================================
-    // PROVIDER
-    // =====================================================
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem("userUser", JSON.stringify(updatedUser));
+  };
 
-    return (
-        <AuthContext.Provider
-            value={value}
-        >
-            {children}
-        </AuthContext.Provider>
-    );
+  const updateAdmin = (updatedAdmin) => {
+    setAdmin(updatedAdmin);
+    localStorage.setItem("adminUser", JSON.stringify(updatedAdmin));
+  };
+
+  const updateAdminProfile = async (updateData) => {
+    try {
+      const currentToken = adminToken || localStorage.getItem("adminToken");
+      if (!currentToken) {
+        throw new Error("No admin authorization token found.");
+      }
+
+      const response = await fetch("http://localhost:5000/admin/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${currentToken}`,
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to update profile.");
+      }
+
+      const updatedAdminInfo = data.admin || data.user;
+      if (updatedAdminInfo) {
+        updateAdmin(updatedAdminInfo);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Update admin profile error:", error);
+      throw error;
+    }
+  };
+
+  const isLoggedIn = () => !!(user || admin);
+  const requireLogin = (action) => {
+    if (!isLoggedIn()) {
+      navigate("/login");
+      return false;
+    }
+    if (typeof action === "function") action();
+    return true;
+  };
+
+  const value = {
+    user,
+    admin,
+    userToken,
+    adminToken,
+    loading,
+    login,
+    loginAdmin,
+    signup,
+    sendResetCode,
+    resetPassword,
+    googleAuth,
+    logout,
+    logoutUser,
+    logoutAdmin,
+    setUser: updateUser,
+    setAdmin: updateAdmin,
+    updateAdminProfile,
+    isUserLoggedIn: !!user,
+    isAdminLoggedIn: !!admin,
+    isLoggedIn,
+    requireLogin,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-// =========================================================
-// USE AUTH
-// =========================================================
 
 export const useAuth = () => {
-    const context =
-        useContext(AuthContext);
-
-    if (!context) {
-        throw new Error(
-            "useAuth must be used inside AuthProvider"
-        );
-    }
-
-    return context;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used inside AuthProvider");
+  }
+  return context;
 };
 
-export default AuthContext;
+export default AuthProvider;

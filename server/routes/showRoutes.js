@@ -7,10 +7,12 @@ import {
     getNowShowingMovies,
     getMovieById,
     searchMovies,
-    getShowsByTheater,
+ // Rating functions
+    rateMovie,
+    getMovieRatings,
     deleteShow, // Import delete function
 } from "../controllers/showController.js";
-
+import { protect } from "../middleWare/auth.js";
 const router = express.Router();
 
 // =====================================================
@@ -29,6 +31,13 @@ router.get("/unique", getUniqueShows);
 // SEARCH MOVIES (for navbar)
 router.get("/search", searchMovies);
 
+// Get ratings
+// GET /api/movie/:id/ratings
+router.get("/movie/:id/ratings", getMovieRatings);
+
+// Submit/update rating
+// POST /api/movie/:id/rate
+router.post("/movie/:id/rate", protect, rateMovie);
 // =====================================================
 // PROTECTED ROUTE (Admin only)
 // =====================================================
@@ -44,10 +53,10 @@ router.get("/movie/:id", getMovieById);
 // =====================================================
 router.delete("/:id", deleteShow);
 
-router.get(
-    "/theater/:theaterId",
-    getShowsByTheater
-);
+// router.get(
+//     "/theater/:theaterId",
+//     getShowsByTheater
+// );
 // =====================================================
 // DYNAMIC ROUTE – MUST BE LAST
 // =====================================================

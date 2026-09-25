@@ -1,64 +1,69 @@
 import express from "express";
 
 import {
-  loginUser,
-  signupUser,
+  login,
+  signup,
+  verifyOtpAndSetPassword,
+  resendVerificationOtp,
+  sendResetOtp,
+  resetPasswordWithOtp,
+  googleAuth,
   getCurrentUser,
+  toggleFavourite,
+  createBooking,
   getMyBookings,
-  getFavorites,
-
+  updateUser,
+  getHomeRecommendations,
 } from "../controllers/userController.js";
 
-import { protect } from "../middleWare/auth.js";
+import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// =====================================================
-// SIGNUP
-// =====================================================
+// ----- AUTH ROUTES -----
 
-router.post("/signup", signupUser);
+router.post("/signup", signup);
 
-// =====================================================
-// LOGIN
-// =====================================================
+router.post("/login", login);
 
-router.post("/login", loginUser);
+router.post("/verify-otp", verifyOtpAndSetPassword);
 
-// =====================================================
-// CURRENT LOGGED-IN USER
-// =====================================================
+router.post("/resend-otp", resendVerificationOtp);
+
+router.post("/send-reset-otp", sendResetOtp);
+
+router.post("/reset-password-otp", resetPasswordWithOtp);
+
+router.post("/google-auth", googleAuth);
+
+// ----- PROTECTED USER ROUTES -----
 
 router.get("/me", protect, getCurrentUser);
 
-// =====================================================
-// GET FAVOURITES
-// =====================================================
+router.put("/update", protect, updateUser);
 
-router.get("/favourites", protect, getFavorites);
+router.post("/favourite/:movieId", protect, toggleFavourite);
 
-// =====================================================
-// TOGGLE FAVOURITE
-// =====================================================
+router.post("/booking", protect, createBooking);
+
+router.get("/bookings", protect, getMyBookings);
 
 // =====================================================
-// ALTERNATIVE FAVORITE ENDPOINT
-// =====================================================
-
-
-// =====================================================
-// CREATE BOOKING
-// =====================================================
-
-
-// =====================================================
-// GET USER BOOKINGS
+// MOVIE RECOMMENDATION ROUTE
+// -----------------------------------------------------
+// Collaborative filtering using:
+// - User ratings
+// - Cosine similarity
+// - Similarity threshold
+// - Active/future shows only
+//
+// Example:
+// GET /user/recommendations/USER_ID
 // =====================================================
 
 router.get(
-  "/bookings",
-  protect,
-  getMyBookings
+  "/recommendations/:userId",
+  getHomeRecommendations
 );
 
 export default router;

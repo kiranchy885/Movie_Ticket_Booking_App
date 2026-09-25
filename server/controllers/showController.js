@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import Show from "../models/Show.js";
 import Movie from "../models/Movie.js";
 import Theater from "../models/Theater.js";
@@ -23,7 +22,7 @@ export const getMovies = async (req, res) => {
 };
 
 // =====================================================
-// ADD MOVIE
+// ADD OR UPDATE MOVIE (UPSERT)
 // =====================================================
 export const addMovie = async (req, res) => {
     try {
@@ -43,33 +42,37 @@ export const addMovie = async (req, res) => {
             });
         }
 
-        const existingMovie = await Movie.findById(movieId);
-        if (existingMovie) {
-            return res.status(200).json({
-                success: true,
-                message: "Movie already exists",
-                movie: existingMovie,
-            });
-        }
+        const trailerValue = movieData.trailer || movieData.trailerUrl || movieData.trailer_url || movieData.videoUrl || "";
+        const posterValue = movieData.poster_path || movieData.poster || movieData.image || "";
+        const backdropValue = movieData.backdrop_path || movieData.backdrop || "";
+        const releaseDateValue = movieData.release_date || movieData.releaseDate || "";
+        const genresValue = movieData.genres || movieData.genre_ids || [];
+        const castsValue = movieData.casts || movieData.cast || [];
 
-        const movie = await Movie.create({
-            _id: movieId,
-            title: title,
-            overview: movieData.overview || "",
-            poster_path: movieData.poster_path || movieData.poster || movieData.image || "",
-            backdrop_path: movieData.backdrop_path || movieData.backdrop || "",
-            release_date: movieData.release_date || movieData.releaseDate || "",
-            original_language: movieData.original_language || "",
-            tagline: movieData.tagline || "",
-            genres: movieData.genres || movieData.genre_ids || [],
-            casts: movieData.casts || movieData.cast || [],
-            vote_average: Number(movieData.vote_average) || 0,
-            runtime: Number(movieData.runtime) || 0,
-        });
+        const movie = await Movie.findByIdAndUpdate(
+            movieId,
+            {
+                $set: {
+                    title: title,
+                    trailer: trailerValue,
+                    overview: movieData.overview || "",
+                    poster_path: posterValue,
+                    backdrop_path: backdropValue,
+                    release_date: releaseDateValue,
+                    original_language: movieData.original_language || "",
+                    tagline: movieData.tagline || "",
+                    genres: genresValue,
+                    casts: castsValue,
+                    vote_average: Number(movieData.vote_average) || 0,
+                    runtime: Number(movieData.runtime) || 0,
+                },
+            },
+            { new: true, upsert: true, setDefaultsOnInsert: true }
+        );
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: true,
-            message: "Movie added successfully",
+            message: "Movie saved successfully",
             movie,
         });
     } catch (error) {
@@ -82,28 +85,68 @@ export const addMovie = async (req, res) => {
 };
 
 // =====================================================
-// ADD SHOW
+// DELETE MOVIE (Removes movie and cleans up all theaters)
+// =====================================================
+export const deleteMovie = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: "Movie ID is required",
+            });
+        }
+
+        // 1. Delete the movie document
+        const deletedMovie = await Movie.findByIdAndDelete(id);
+        if (!deletedMovie) {
+            return res.status(404).json({
+                success: false,
+                message: "Movie not found",
+            });
+        }
+
+        // 2. Delete all active shows associated with this movie
+        await Show.deleteMany({ movie: id });
+
+        // 3. Automatically remove this movie ID from the 'movies' array of all theaters
+        await Theater.updateMany(
+            { movies: id },
+            { $pull: { movies: id } }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Movie and its associated shows deleted successfully, and removed from theaters.",
+            deletedMovie,
+        });
+    } catch (error) {
+        console.error("Delete Movie Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+// =====================================================
+// ADD SHOW (Prevents past shows & cleans DB)
 // =====================================================
 export const addShow = async (req, res) => {
     try {
-        const {
-            movie,
-            price,
-            dateTimes,
-            theaterId,
+        await Show.deleteMany({ showDateTime: { $lt: new Date() } });
+
+        const { 
+            movie, 
+            price, 
+            dateTimes, 
+            theaterId, 
+            theaterName, 
+            theaterLat, 
+            theaterLng,
+            theaterCity,
+            theaterAddress 
         } = req.body;
-
-        console.log("======================================");
-        console.log("ADD SHOW REQUEST RECEIVED");
-        console.log("Movie:", movie);
-        console.log("Price:", price);
-        console.log("Date Times:", dateTimes);
-        console.log("Theater ID:", theaterId);
-        console.log("======================================");
-
-        // =====================================================
-        // VALIDATE MOVIE
-        // =====================================================
 
         if (!movie || typeof movie !== "object") {
             return res.status(400).json({
@@ -112,10 +155,7 @@ export const addShow = async (req, res) => {
             });
         }
 
-        const movieId = String(
-            movie._id || movie.id || ""
-        );
-
+        const movieId = String(movie._id || movie.id || "");
         if (!movieId) {
             return res.status(400).json({
                 success: false,
@@ -123,323 +163,152 @@ export const addShow = async (req, res) => {
             });
         }
 
-        const movieTitle =
-            movie.title ||
-            movie.name ||
-            "";
-
-        if (!movieTitle) {
-            return res.status(400).json({
-                success: false,
-                message: "Movie title is required",
-            });
-        }
-
-        // =====================================================
-        // VALIDATE PRICE
-        // =====================================================
-
         const showPrice = Number(price);
-
-        if (
-            !Number.isFinite(showPrice) ||
-            showPrice <= 0
-        ) {
+        if (!Number.isFinite(showPrice) || showPrice <= 0) {
             return res.status(400).json({
                 success: false,
                 message: "Please enter a valid show price",
             });
         }
 
-        // =====================================================
-        // VALIDATE DATE/TIME
-        // =====================================================
-
-        if (
-            !dateTimes ||
-            typeof dateTimes !== "object" ||
-            Array.isArray(dateTimes) ||
-            Object.keys(dateTimes).length === 0
-        ) {
+        if (!dateTimes || typeof dateTimes !== "object" || Array.isArray(dateTimes) || Object.keys(dateTimes).length === 0) {
             return res.status(400).json({
                 success: false,
-                message:
-                    "Please add at least one show date and time",
+                message: "Please add at least one show date and time",
             });
         }
 
-        // =====================================================
-        // VALIDATE THEATER ID
-        // =====================================================
+        const movieDocument = await Movie.findById(movieId);
+        if (!movieDocument) {
+            return res.status(400).json({
+                success: false,
+                message: "Movie not found. Please add the movie first.",
+            });
+        }
+
+        const savedMovieId = String(movieDocument._id);
 
         if (!theaterId) {
             return res.status(400).json({
                 success: false,
-                message: "Please select a theater",
+                message: "Theater is required. Please select a theater first.",
             });
         }
 
-        if (
-            !mongoose.Types.ObjectId.isValid(theaterId)
-        ) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid theater ID",
-            });
-        }
-
-        // =====================================================
-        // FIND MOVIE
-        // =====================================================
-
-        let movieDocument =
-            await Movie.findById(movieId);
-
-        // If movie doesn't exist, create it
-        if (!movieDocument) {
-            console.log(
-                "Movie not found. Creating movie..."
-            );
-
-            movieDocument =
-                await Movie.create({
-                    _id: movieId,
-                    title: movieTitle,
-                    overview:
-                        movie.overview || "",
-                    poster_path:
-                        movie.poster_path ||
-                        movie.poster ||
-                        movie.image ||
-                        "",
-                    backdrop_path:
-                        movie.backdrop_path ||
-                        movie.backdrop ||
-                        "",
-                    release_date:
-                        movie.release_date ||
-                        movie.releaseDate ||
-                        "",
-                    original_language:
-                        movie.original_language ||
-                        "",
-                    tagline:
-                        movie.tagline || "",
-                    genres:
-                        movie.genres ||
-                        movie.genre_ids ||
-                        [],
-                    casts:
-                        movie.casts ||
-                        movie.cast ||
-                        [],
-                    vote_average:
-                        Number(
-                            movie.vote_average
-                        ) || 0,
-                    runtime:
-                        Number(
-                            movie.runtime
-                        ) || 0,
+        let theaterDoc = await Theater.findById(theaterId);
+        if (!theaterDoc) {
+            try {
+                theaterDoc = await Theater.create({
+                    _id: theaterId,
+                    name: theaterName || "Unknown Theater",
+                    city: theaterCity || "",
+                    address: theaterAddress || "",
+                    latitude: theaterLat || 0,
+                    longitude: theaterLng || 0,
+                    location: {
+                        type: "Point",
+                        coordinates: [theaterLng || 0, theaterLat || 0],
+                    },
+                    isActive: true,
                 });
-
-            console.log(
-                "Movie created:",
-                movieDocument._id
-            );
+            } catch (createError) {
+                console.error("Failed to create theater:", createError);
+            }
         }
-
-        const savedMovieId =
-            String(movieDocument._id);
-
-        // =====================================================
-        // FIND THEATER
-        // =====================================================
-
-        const theater =
-            await Theater.findById(theaterId);
-
-        if (!theater) {
-            return res.status(404).json({
-                success: false,
-                message:
-                    "Selected theater was not found in database",
-            });
-        }
-
-        console.log(
-            "Selected theater:",
-            theater.name,
-            theater._id
-        );
-
-        // =====================================================
-        // CREATE SHOW DOCUMENTS
-        // =====================================================
 
         const showsToCreate = [];
+        const currentTime = new Date();
 
-        for (
-            const [date, times]
-            of Object.entries(dateTimes)
-        ) {
-            if (!Array.isArray(times)) {
-                continue;
-            }
-
+        for (const [date, times] of Object.entries(dateTimes)) {
+            if (!Array.isArray(times)) continue;
             for (const time of times) {
-
-                const showDateTime =
-                    new Date(
-                        `${date}T${time}`
-                    );
-
-                if (
-                    isNaN(
-                        showDateTime.getTime()
-                    )
-                ) {
+                const showDateTime = new Date(`${date}T${time}`);
+                if (isNaN(showDateTime.getTime())) {
                     return res.status(400).json({
                         success: false,
-                        message:
-                            `Invalid date/time: ${date} ${time}`,
+                        message: `Invalid date/time: ${date} ${time}`,
                     });
                 }
 
-                // =====================================================
-                // CHECK DUPLICATE FOR SAME MOVIE + SAME THEATER + TIME
-                // =====================================================
-
-                const existingShow =
-                    await Show.findOne({
-                        movie: savedMovieId,
-                        theaterId: theaterId,
-                        showDateTime:
-                            showDateTime,
+                if (showDateTime < currentTime) {
+                    return res.status(400).json({
+                        success: false,
+                        message: `Cannot schedule a show in the past: ${date} at ${time}`,
                     });
+                }
+
+                const existingShow = await Show.findOne({
+                    movie: savedMovieId,
+                    showDateTime: showDateTime,
+                    theaterId: theaterId,
+                });
 
                 if (existingShow) {
                     return res.status(400).json({
                         success: false,
-                        message:
-                            `${movieTitle} already has a show at ${theater.name} on ${date} at ${time}`,
+                        message: `This show already exists at ${theaterName || "this theater"} for ${date} at ${time}.`,
                     });
                 }
 
-                // =====================================================
-                // SAVE SHOW WITH THEATER
-                // =====================================================
-
                 showsToCreate.push({
                     movie: savedMovieId,
-
-                    theaterId: theater._id,
-
-                    theaterName:
-                        theater.name,
-
-                    theaterLat:
-                        Number(
-                            theater.latitude
-                        ) || 0,
-
-                    theaterLng:
-                        Number(
-                            theater.longitude
-                        ) || 0,
-
-                    theaterCity:
-                        theater.city || "",
-
-                    theaterAddress:
-                        theater.address || "",
-
-                    showDateTime:
-                        showDateTime,
-
-                    showPrice:
-                        showPrice,
-
+                    showDateTime: showDateTime,
+                    showPrice: showPrice,
                     occupiedSeats: {},
+                    theaterId: theaterId || "",
+                    theaterName: theaterName || "",
+                    theaterLat: theaterLat || 0,
+                    theaterLng: theaterLng || 0,
+                    theaterCity: theaterCity || "",
+                    theaterAddress: theaterAddress || "",
                 });
             }
         }
 
-        // =====================================================
-        // NO SHOWS
-        // =====================================================
-
-        if (
-            showsToCreate.length === 0
-        ) {
+        if (showsToCreate.length === 0) {
             return res.status(400).json({
                 success: false,
-                message:
-                    "No valid show date/time found",
+                message: "No valid future show date/time found",
             });
         }
 
-        // =====================================================
-        // INSERT SHOWS
-        // =====================================================
+        const createdShows = await Show.insertMany(showsToCreate);
 
-        const createdShows =
-            await Show.insertMany(
-                showsToCreate
+        if (theaterDoc) {
+            await Theater.findByIdAndUpdate(
+                theaterDoc._id,
+                { $addToSet: { movies: savedMovieId } },
+                { new: true }
             );
-
-        console.log(
-            "======================================"
-        );
-
-        console.log(
-            "SHOWS INSERTED SUCCESSFULLY"
-        );
-
-        console.log(
-            createdShows
-        );
-
-        console.log(
-            "======================================"
-        );
+        }
 
         return res.status(201).json({
             success: true,
-            message:
-                "Movie and shows added successfully",
-
-            movie:
-                movieDocument,
-
-            theater:
-                theater,
-
-            shows:
-                createdShows,
+            message: "Shows added successfully",
+            movie: movieDocument,
+            shows: createdShows,
         });
-
     } catch (error) {
-
-        console.error(
-            "ADD SHOW ERROR:",
-            error
-        );
-
+        console.error("ADD SHOW ERROR:", error);
         return res.status(500).json({
             success: false,
             message: error.message,
         });
     }
 };
+
 // =====================================================
-// GET ALL SHOWS
+// GET ALL SHOWS (Filters out past shows & updates DB)
 // =====================================================
 export const getAllShows = async (req, res) => {
     try {
-        const shows = await Show.find()
+        await Show.deleteMany({ showDateTime: { $lt: new Date() } });
+
+        const shows = await Show.find({ showDateTime: { $gte: new Date() } })
             .populate("movie")
+            .populate("theaterId")
             .sort({ showDateTime: 1 });
+
         return res.status(200).json({
             success: true,
             shows,
@@ -466,16 +335,14 @@ export const getShow = async (req, res) => {
             });
         }
 
-        console.log("======================================");
-        console.log("GET SHOWS FOR MOVIE");
-        console.log("Movie ID:", movieId);
+        await Show.deleteMany({ showDateTime: { $lt: new Date() } });
 
-        const shows = await Show.find({ movie: String(movieId) })
+        const shows = await Show.find({ 
+            movie: String(movieId),
+            showDateTime: { $gte: new Date() }
+        })
             .populate("movie")
             .sort({ showDateTime: 1 });
-
-        console.log("Shows found:", shows.length);
-        console.log("Shows:", shows);
 
         return res.status(200).json({
             success: true,
@@ -491,12 +358,11 @@ export const getShow = async (req, res) => {
 };
 
 // =====================================================
-// DELETE SHOW BY ID
+// DELETE SHOW BY ID (Automatically cleans up theater movies if none left)
 // =====================================================
 export const deleteShow = async (req, res) => {
     try {
         const { id } = req.params;
-
         if (!id) {
             return res.status(400).json({
                 success: false,
@@ -505,11 +371,24 @@ export const deleteShow = async (req, res) => {
         }
 
         const deletedShow = await Show.findByIdAndDelete(id);
-
         if (!deletedShow) {
             return res.status(404).json({
                 success: false,
                 message: "Show not found",
+            });
+        }
+
+        // Check if there are any remaining future shows for this movie in this theater
+        const remainingShows = await Show.countDocuments({
+            theaterId: deletedShow.theaterId,
+            movie: deletedShow.movie,
+            showDateTime: { $gte: new Date() }
+        });
+
+        // If no more shows exist for this movie in that theater, remove it from the theater's movies array
+        if (remainingShows === 0) {
+            await Theater.findByIdAndUpdate(deletedShow.theaterId, {
+                $pull: { movies: deletedShow.movie }
             });
         }
 
@@ -532,8 +411,11 @@ export const deleteShow = async (req, res) => {
 // =====================================================
 export const getUniqueShows = async (req, res) => {
     try {
-        const shows = await Show.find();
+        await Show.deleteMany({ showDateTime: { $lt: new Date() } });
+
+        const shows = await Show.find({ showDateTime: { $gte: new Date() } });
         const movieIds = [...new Set(shows.map((show) => String(show.movie)))];
+
         return res.status(200).json({
             success: true,
             movieIds,
@@ -552,14 +434,11 @@ export const getUniqueShows = async (req, res) => {
 // =====================================================
 export const getNowShowingMovies = async (req, res) => {
     try {
-        console.log("======================================");
-        console.log("GET NOW SHOWING MOVIES");
+        await Show.deleteMany({ showDateTime: { $lt: new Date() } });
 
-        const shows = await Show.find()
+        const shows = await Show.find({ showDateTime: { $gte: new Date() } })
             .sort({ showDateTime: -1 })
             .lean();
-
-        console.log("Total shows:", shows.length);
 
         if (shows.length === 0) {
             return res.status(200).json({
@@ -569,10 +448,7 @@ export const getNowShowingMovies = async (req, res) => {
         }
 
         const movieIds = [...new Set(shows.map((show) => String(show.movie)))];
-        console.log("Movie IDs from Show collection:", movieIds);
-
         const movies = await Movie.find({ _id: { $in: movieIds } }).lean();
-        console.log("Movies found in Movie collection:", movies.length);
 
         const movieMap = new Map();
         movies.forEach((movie) => {
@@ -590,9 +466,6 @@ export const getNowShowingMovies = async (req, res) => {
                 orderedMovies.push(movie);
             }
         }
-
-        console.log("Movies returned:", orderedMovies.length);
-        console.log("======================================");
 
         return res.status(200).json({
             success: true,
@@ -672,61 +545,112 @@ export const searchMovies = async (req, res) => {
 };
 
 // =====================================================
-// GET SHOWS FOR ONE THEATER
+// RATE A MOVIE
 // =====================================================
-export const getShowsByTheater = async (req, res) => {
+export const rateMovie = async (req, res) => {
     try {
-        const { theaterId } = req.params;
+        const userId = req.userId || req.user?._id;
+        const { id } = req.params;
+        const { rating } = req.body;
 
-        console.log(
-            "Getting shows for theater:",
-            theaterId
-        );
-
-        if (!theaterId) {
-            return res.status(400).json({
+        if (!userId) {
+            return res.status(401).json({
                 success: false,
-                message: "Theater ID is required",
+                message: "Please login to rate this movie.",
             });
         }
 
-        if (
-            !mongoose.Types.ObjectId.isValid(
-                theaterId
-            )
-        ) {
+        const numericRating = Number(rating);
+        if (!Number.isFinite(numericRating) || numericRating < 1 || numericRating > 5) {
             return res.status(400).json({
                 success: false,
-                message: "Invalid theater ID",
+                message: "Rating must be between 1 and 5.",
             });
         }
 
-        const shows = await Show.find({
-            theaterId: theaterId,
-        })
-            .populate("movie")
-            .populate("theaterId")
-            .sort({
-                showDateTime: 1,
+        const movie = await Movie.findById(String(id));
+        if (!movie) {
+            return res.status(404).json({
+                success: false,
+                message: "Movie not found.",
             });
+        }
 
-        console.log(
-            "Shows found:",
-            shows.length
-        );
+        if (!Array.isArray(movie.ratings)) {
+            movie.ratings = [];
+        }
 
-        return res.status(200).json({
+        const index = movie.ratings.findIndex((r) => String(r.userId) === String(userId));
+
+        if (index >= 0) {
+            movie.ratings[index].rating = numericRating;
+        } else {
+            movie.ratings.push({
+                userId,
+                rating: numericRating,
+            });
+        }
+
+        const total = movie.ratings.length;
+        const sum = movie.ratings.reduce((s, r) => s + Number(r.rating || 0), 0);
+        const avg = total > 0 ? sum / total : 0;
+
+        movie.userRatingAvg = Number(avg.toFixed(1));
+        movie.userRatingCount = total;
+
+        await movie.save();
+
+        return res.json({
             success: true,
-            shows,
+            message: "Rating saved.",
+            averageRating: movie.userRatingAvg,
+            totalRatings: movie.userRatingCount,
+            userRating: numericRating,
         });
-
     } catch (error) {
+        console.error("Rate Movie Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
 
-        console.error(
-            "Get Shows By Theater Error:",
-            error
-        );
+// =====================================================
+// GET MOVIE RATINGS
+// =====================================================
+export const getMovieRatings = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId || req.user?._id || null;
 
+        const movie = await Movie.findById(String(id)).lean();
+        if (!movie) {
+            return res.status(404).json({
+                success: false,
+                message: "Movie not found.",
+            });
+        }
+
+        const ratings = Array.isArray(movie.ratings) ? movie.ratings : [];
+        const total = ratings.length;
+        const sum = ratings.reduce((s, r) => s + Number(r.rating || 0), 0);
+        const avg = total > 0 ? sum / total : Number(movie.vote_average) || 0;
+
+        let userRating = 0;
+        if (userId) {
+            const mine = ratings.find((r) => String(r.userId) === String(userId));
+            if (mine) userRating = Number(mine.rating) || 0;
+        }
+
+        return res.json({
+            success: true,
+            averageRating: Number(avg.toFixed(1)),
+            totalRatings: total,
+            userRating,
+        });
+    } catch (error) {
+        console.error("Get Movie Ratings Error:", error);
         return res.status(500).json({
             success: false,
             message: error.message,

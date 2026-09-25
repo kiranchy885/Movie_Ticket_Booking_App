@@ -1,283 +1,388 @@
-
 import React, { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
 import Title from "../../components/admin/Title";
 import dateFormat from "../../lib/dateFormat";
+import toast from "react-hot-toast";
+import { Trash2, Users, ChevronDown, ChevronUp, MapPin } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 const ListShows = () => {
-    const currency =
-        import.meta.env.VITE_CURRENCY || "Rs.";
+  const currency = import.meta.env.VITE_CURRENCY || "Rs.";
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-    const [shows, setShows] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const { adminToken } = useAuth();
 
-    // =====================================================
-    // GET ALL SHOWS FROM MONGODB
-    // =====================================================
+  const [shows, setShows] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [theaters, setTheaters] = useState([]); // all theaters from DB
+  const [loading, setLoading] = useState(true);
+  const [expandedShowId, setExpandedShowId] = useState(null);
 
-    const getAllShows = async () => {
-        try {
-            setLoading(true);
+  const toggleUserList = (showId) => {
+    setExpandedShowId((prev) => (prev === showId ? null : showId));
+  };
 
-            const token =
-                localStorage.getItem("token");
+  /* ------------------------------------------------------------------ */
+  /*  Resolve the theater of a show                                     */
+  /* ------------------------------------------------------------------ */
+  const resolveTheater = (show) => {
+    const byId = (id) =>
+      theaters.find((t) => String(t._id || t.id) === String(id));
 
-            if (!token) {
-                throw new Error(
-                    "You are not logged in. Please login again."
-                );
-            }
+    const normalize = (t) => {
+      if (!t) return null;
 
-            // =================================================
-            // CALL BACKEND
-            // =================================================
+      if (typeof t === "string") {
+        const found = byId(t);
+        return found ? normalize(found) : null;
+      }
 
-            const response = await fetch(
-                "http://localhost:5000/show/all",
-                {
-                    method: "GET",
+      const name = t.name || t.theaterName || t.title;
+      if (!name) return null;
 
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-
-                        Authorization:
-                            `Bearer ${token}`,
-                    },
-                }
-            );
-
-            // =================================================
-            // READ RESPONSE
-            // =================================================
-
-            const data =
-                await response.json();
-
-            console.log(
-                "All shows from MongoDB:",
-                data
-            );
-
-            // =================================================
-            // HANDLE ERROR
-            // =================================================
-
-            if (!response.ok || !data.success) {
-                throw new Error(
-                    data.message ||
-                    "Failed to fetch shows"
-                );
-            }
-
-            // =================================================
-            // SET SHOWS
-            // =================================================
-
-            setShows(
-                Array.isArray(data.shows)
-                    ? data.shows
-                    : []
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Error getting shows:",
-                error
-            );
-
-            setShows([]);
-
-        } finally {
-
-            setLoading(false);
-
-        }
+      return {
+        name,
+        city: t.city || t.theaterCity || t.location?.city || "",
+        address: t.address || t.theaterAddress || t.location?.address || "",
+      };
     };
 
-    // =====================================================
-    // LOAD SHOWS WHEN PAGE OPENS
-    // =====================================================
+    const candidates = [
+      show.theaterId,
+      show.theater,
+      show.theatre,
+      show.theatreId,
+      show.screen?.theater,
+      show.screen?.theaterId,
+      show.audi?.theater,
+      show.audi?.theaterId,
+    ];
 
-    useEffect(() => {
-        getAllShows();
-    }, []);
-
-    // =====================================================
-    // LOADING
-    // =====================================================
-
-    if (loading) {
-        return <Loading />;
+    for (const candidate of candidates) {
+      const info = normalize(candidate);
+      if (info?.name) return info;
     }
 
-    // =====================================================
-    // PAGE
-    // =====================================================
+    if (show.theaterName) {
+      return {
+        name: show.theaterName,
+        city: show.theaterCity || "",
+        address: show.theaterAddress || "",
+      };
+    }
 
-    return (
-        <>
-            <Title
-                text1="List"
-                text2="Shows"
-            />
+    return null;
+  };
 
-            <div className="max-w-5xl mt-6 overflow-x-auto">
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      if (!adminToken) throw new Error("You are not logged in.");
 
-                <table className="w-full border-collapse rounded-md overflow-hidden text-nowrap">
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminToken}`,
+      };
 
-                    {/* ================================================= */}
-                    {/* TABLE HEADER */}
-                    {/* ================================================= */}
+      /* ---------------- Shows ---------------- */
+      let showRes = await fetch(`${backendUrl}/show/all`, {
+        method: "GET",
+        headers,
+      });
 
-                    <thead>
-                        <tr className="bg-primary/20 text-left text-white">
+      if (showRes.status === 404) {
+        showRes = await fetch(`${backendUrl}/admin/all-shows`, {
+          method: "GET",
+          headers,
+        });
+      }
 
-                            <th className="p-3 font-medium pl-5">
-                                Movie Name
-                            </th>
+      const showData = await showRes.json();
+      if (!showRes.ok) throw new Error(showData.message || "Failed to fetch shows");
 
-                            <th className="p-3 font-medium">
-                                Show Time
-                            </th>
+      const rawShows =
+        showData.shows ||
+        showData.data ||
+        showData.allShows ||
+        (Array.isArray(showData) ? showData : []);
 
-                            <th className="p-3 font-medium">
-                                Show Price
-                            </th>
+      // 👈 Filter out shows that are of past dates/times
+      const now = new Date();
+      const fetchedShows = rawShows.filter((show) => {
+        const showTimeStr = show.showDateTime || show.dateTime;
+        if (!showTimeStr) return true; // Keep if no date is specified
+        return new Date(showTimeStr) >= now;
+      });
 
-                            <th className="p-3 font-medium">
-                                Total Bookings
-                            </th>
+      /* ---------------- Bookings ---------------- */
+      let fetchedBookings = [];
+      try {
+        const bookingRes = await fetch(`${backendUrl}/booking/all`, {
+          method: "GET",
+          headers,
+        });
+        if (bookingRes.ok) {
+          const bookingData = await bookingRes.json();
+          fetchedBookings =
+            bookingData.bookings ||
+            bookingData.data ||
+            (Array.isArray(bookingData) ? bookingData : []);
+        }
+      } catch (bErr) {
+        console.warn("Could not fetch bookings:", bErr);
+      }
 
-                            <th className="p-3 font-medium">
-                                Earnings
-                            </th>
+      /* ---------------- Theaters (from DB) ---------------- */
+      let fetchedTheaters = [];
+      try {
+        let theaterRes = await fetch(`${backendUrl}/theater/all`, {
+          method: "GET",
+          headers,
+        });
 
-                        </tr>
-                    </thead>
+        if (theaterRes.status === 404) {
+          theaterRes = await fetch(`${backendUrl}/admin/all-theaters`, {
+            method: "GET",
+            headers,
+          });
+        }
 
-                    {/* ================================================= */}
-                    {/* TABLE BODY */}
-                    {/* ================================================= */}
+        if (theaterRes.ok) {
+          const theaterData = await theaterRes.json();
+          fetchedTheaters =
+            theaterData.theaters ||
+            theaterData.data ||
+            theaterData.allTheaters ||
+            (Array.isArray(theaterData) ? theaterData : []);
+        }
+      } catch (tErr) {
+        console.warn("Could not fetch theaters:", tErr);
+      }
 
-                    <tbody className="text-sm font-light">
+      setShows(fetchedShows);
+      setBookings(fetchedBookings);
+      setTheaters(fetchedTheaters);
+    } catch (error) {
+      console.error("Error getting shows:", error);
+      toast.error(error.message || "Failed to load shows.");
+      setShows([]);
+      setBookings([]);
+      setTheaters([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                        {shows.length > 0 ? (
+  const handleDeleteShow = async (showId) => {
+    if (!window.confirm("Are you sure you want to delete this show?")) return;
+    try {
+      if (!adminToken) {
+        toast.error("You are not logged in.");
+        return;
+      }
+      const response = await fetch(`${backendUrl}/show/${showId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to delete show");
+      toast.success("Show deleted successfully!");
+      setShows((prev) => prev.filter((item) => item._id !== showId));
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
-                            shows.map((show) => {
+  useEffect(() => {
+    fetchData();
+  }, [adminToken]);
 
-                                // =================================================
-                                // COUNT BOOKED SEATS
-                                // =================================================
+  if (loading) return <Loading />;
 
-                                const totalBookings =
-                                    Object.keys(
-                                        show.occupiedSeats || {}
-                                    ).length;
+  return (
+    <>
+      <Title text1="List" text2="Shows" />
+      <div className="max-w-6xl mt-6 overflow-x-auto">
+        <table className="w-full border-collapse rounded-md overflow-hidden text-nowrap">
+          <thead>
+            <tr className="bg-primary/20 text-left text-white">
+              <th className="p-3 font-medium pl-5">Movie Name</th>
+              <th className="p-3 font-medium">Theater</th>
+              <th className="p-3 font-medium">Show Time</th>
+              <th className="p-3 font-medium">Show Price</th>
+              <th className="p-3 font-medium">Total Bookings</th>
+              <th className="p-3 font-medium">Booked Users</th>
+              <th className="p-3 font-medium">Earnings</th>
+              <th className="p-3 font-medium text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody className="text-sm font-light">
+            {shows.length > 0 ? (
+              shows.map((show) => {
+                const showIdStr = String(show._id);
+                const showBookings = bookings.filter((b) => {
+                  const bShowId = typeof b.show === "object" ? b.show?._id : b.show;
+                  return (
+                    String(bShowId) === showIdStr &&
+                    (b.isPaid === true || b.isPaid === undefined)
+                  );
+                });
 
-                                // =================================================
-                                // CALCULATE EARNINGS
-                                // =================================================
+                const totalBookedSeats = showBookings.reduce((sum, b) => {
+                  const seatCount = Array.isArray(b.bookedSeats)
+                    ? b.bookedSeats.length
+                    : Array.isArray(b.seats)
+                    ? b.seats.length
+                    : 1;
+                  return sum + seatCount;
+                }, 0);
 
-                                const earnings =
-                                    totalBookings *
-                                    Number(
-                                        show.showPrice || 0
-                                    );
+                const realEarnings = showBookings.reduce((sum, b) => {
+                  const amt = Number(b.amount || b.totalAmount || 0);
+                  return (
+                    sum +
+                    (amt > 0
+                      ? amt
+                      : (Array.isArray(b.bookedSeats) ? b.bookedSeats.length : 1) *
+                        Number(show.showPrice || 0))
+                  );
+                }, 0);
 
-                                return (
+                const isExpanded = expandedShowId === show._id;
+                const theater = resolveTheater(show);
 
-                                    <tr
-                                        key={show._id}
-                                        className="border-b border-primary/10 bg-primary/5 even:bg-primary/10 hover:bg-primary/20 transition"
-                                    >
+                return (
+                  <React.Fragment key={show._id}>
+                    <tr className="border-b border-primary/10 bg-primary/5 even:bg-primary/10 hover:bg-primary/20 transition">
+                      <td className="p-3 min-w-45 pl-5 font-medium text-white">
+                        {show.movie?.title || show.movieTitle || "Unknown Movie"}
+                      </td>
 
-                                        {/* ================================================= */}
-                                        {/* MOVIE NAME */}
-                                        {/* ================================================= */}
-
-                                        <td className="p-3 min-w-45 pl-5">
-
-                                            {show.movie?.title ||
-                                                "Unknown Movie"}
-
-                                        </td>
-
-                                        {/* ================================================= */}
-                                        {/* SHOW DATE & TIME */}
-                                        {/* ================================================= */}
-
-                                        <td className="p-3">
-
-                                            {show.showDateTime
-                                                ? dateFormat(
-                                                    show.showDateTime
-                                                )
-                                                : "N/A"}
-
-                                        </td>
-
-                                        {/* ================================================= */}
-                                        {/* SHOW PRICE */}
-                                        {/* ================================================= */}
-
-                                        <td className="p-3">
-
-                                            {currency}
-                                            {show.showPrice}
-
-                                        </td>
-
-                                        {/* ================================================= */}
-                                        {/* TOTAL BOOKINGS */}
-                                        {/* ================================================= */}
-
-                                        <td className="p-3">
-
-                                            {totalBookings}
-
-                                        </td>
-
-                                        {/* ================================================= */}
-                                        {/* EARNINGS */}
-                                        {/* ================================================= */}
-
-                                        <td className="p-3">
-
-                                            {currency}
-                                            {earnings}
-
-                                        </td>
-
-                                    </tr>
-
-                                );
-
-                            })
-
+                      {/* ===== THEATER COLUMN – from DB ===== */}
+                      <td className="p-3">
+                        {theater ? (
+                          <div>
+                            <p className="font-medium text-white text-sm flex items-center gap-1">
+                              {theater.name}
+                            </p>
+                            {(theater.city || theater.address) && (
+                              <p className="text-[11px] text-gray-400 flex items-center gap-1">
+                                <MapPin size={10} />
+                                {theater.city && `${theater.city}, `}
+                                {theater.address}
+                              </p>
+                            )}
+                          </div>
                         ) : (
-
-                            <tr>
-
-                                <td
-                                    colSpan="5"
-                                    className="text-center py-8 text-gray-400"
-                                >
-                                    No shows found. Add a show from Add Shows.
-                                </td>
-
-                            </tr>
-
+                          <span className="text-gray-500 text-xs">N/A</span>
                         )}
+                      </td>
 
-                    </tbody>
+                      <td className="p-3">
+                        {show.showDateTime
+                          ? dateFormat(show.showDateTime)
+                          : show.dateTime
+                          ? dateFormat(show.dateTime)
+                          : "N/A"}
+                      </td>
+                      <td className="p-3">
+                        {currency}
+                        {show.showPrice}
+                      </td>
+                      <td className="p-3">
+                        {totalBookedSeats}{" "}
+                        <span className="text-xs text-gray-400">
+                          ({showBookings.length}{" "}
+                          {showBookings.length === 1 ? "order" : "orders"})
+                        </span>
+                      </td>
+                      <td className="p-3">
+                        {showBookings.length > 0 ? (
+                          <button
+                            onClick={() => toggleUserList(show._id)}
+                            className="flex items-center gap-1.5 px-2.5 py-1 text-xs bg-primary/20 hover:bg-primary/40 text-primary-light border border-primary/30 rounded transition"
+                          >
+                            <Users size={14} />
+                            <span>{showBookings.length} Customer(s)</span>
+                            {isExpanded ? (
+                              <ChevronUp size={14} />
+                            ) : (
+                              <ChevronDown size={14} />
+                            )}
+                          </button>
+                        ) : (
+                          <span className="text-gray-500 text-xs">No users yet</span>
+                        )}
+                      </td>
+                      <td className="p-3 font-medium text-emerald-400">
+                        {currency}
+                        {realEarnings}
+                      </td>
+                      <td className="p-3 text-center">
+                        <button
+                          onClick={() => handleDeleteShow(show._id)}
+                          className="p-1.5 bg-red-500/10 hover:bg-red-500/30 text-red-400 rounded transition"
+                          title="Delete Show"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
 
-                </table>
-
-            </div>
-        </>
-    );
+                    {isExpanded && (
+                      <tr className="bg-primary/20 border-b border-primary/20">
+                        <td colSpan="8" className="p-4 pl-10">
+                          <div className="bg-black/40 p-3 rounded-lg border border-primary/10">
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-300 mb-2 flex items-center gap-2">
+                              <Users size={14} /> Registered Customers for this Show
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                              {showBookings.map((b, idx) => {
+                                const userName =
+                                  typeof b.user === "object" && b.user?.name
+                                    ? b.user.name
+                                    : b.userName || "Guest / Direct Booking";
+                                const userEmail =
+                                  typeof b.user === "object" && b.user?.email
+                                    ? b.user.email
+                                    : b.userEmail || "No Email";
+                                const seats = Array.isArray(b.bookedSeats)
+                                  ? b.bookedSeats.join(", ")
+                                  : "N/A";
+                                return (
+                                  <div
+                                    key={b._id || idx}
+                                    className="p-2 bg-white/5 rounded text-xs border border-white/5"
+                                  >
+                                    <p className="font-medium text-white">{userName}</p>
+                                    <p className="text-gray-400 text-[11px]">{userEmail}</p>
+                                    <p className="text-emerald-400 text-[11px] mt-1">
+                                      Seats:{" "}
+                                      <span className="font-mono text-white">{seats}</span>
+                                    </p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="8" className="text-center py-8 text-gray-400">
+                  No upcoming shows found. Add a show from Add Shows.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
 };
 
 export default ListShows;

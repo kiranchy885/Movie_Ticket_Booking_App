@@ -1,22 +1,45 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-import {
-    MapPin,
-    Clock,
-    Film,
-    Loader2,
-    RefreshCw,
-    CalendarDays,
-    Ticket,
-} from "lucide-react";
-
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import BlurCircle from "../components/BlurCircle";
+import Loading from "../components/Loading";
+import MovieCard from "../components/MovieCard";
 
-const API_BASE_URL = "http://localhost:5000";
+import { MapPin, Trophy } from "lucide-react";
+
+// CONFIG
+const BACKEND_URL = "http://localhost:5000";
+
+// HELPERS
+const resolveTheaterFromShow = (show) => {
+    if (show.theaterId && typeof show.theaterId === "object") {
+        return String(show.theaterId._id || show.theaterId.id || "");
+    }
+    if (show.theaterId) return String(show.theaterId);
+    if (show.theater && typeof show.theater === "object") {
+        return String(show.theater._id || show.theater.id || "");
+    }
+    return "";
+};
+
+// HELPER: get HIGHEST user rating for a movie
+const getUserRatingInfo = (movie) => {
+    if (Array.isArray(movie?.ratings) && movie.ratings.length > 0) {
+        const valid = movie.ratings
+            .map((r) => Number(r?.rating))
+            .filter((n) => Number.isFinite(n) && n >= 1 && n <= 5);
+
+        if (valid.length > 0) {
+            return {
+                highest: Math.max(...valid),
+                count: valid.length,
+            };
+        }
+    }
+
+    return { highest: 0, count: 0 };
+};
 
 const Theaters = () => {
     const navigate = useNavigate();
@@ -25,912 +48,333 @@ const Theaters = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    // =====================================================
-    // FETCH THEATERS WITH MOVIES
-    // =====================================================
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                setError("");
 
-    const fetchTheaters = async () => {
-        try {
-            setLoading(true);
-            setError("");
+                // 1. Get all theaters
+                let theatersList = [];
+                try {
+                    const tRes = await axios.get(`${BACKEND_URL}/theater/all`);
+                    theatersList =
+                        tRes.data?.theaters ||
+                        tRes.data?.data ||
+                        (Array.isArray(tRes.data) ? tRes.data : []);
+                } catch (tErr) {
+                    console.warn("Could not fetch /theater/all:", tErr?.message);
+                }
 
-            const response = await axios.get(
-                `${API_BASE_URL}/theater/with-movies`
-            );
+                // 2. Get all shows
+                let shows = [];
+                try {
+                    const sRes = await axios.get(`${BACKEND_URL}/show/all`);
+                    shows = Array.isArray(sRes.data?.shows)
+                        ? sRes.data.shows
+                        : [];
+                } catch (sErr) {
+                    console.warn("Could not fetch /show/all:", sErr?.message);
+                }
 
-            console.log("====================================");
-            console.log("THEATER WITH MOVIES API RESPONSE");
-            console.log(response.data);
-            console.log("====================================");
+                // 3. Get all movies
+                let moviesFromDb = [];
+                try {
+                    const mRes = await axios.get(`${BACKEND_URL}/movie/all`);
+                    moviesFromDb = Array.isArray(mRes.data?.movies)
+                        ? mRes.data.movies
+                        : [];
+                } catch (mErr) {
+                    console.warn("Could not fetch /movie/all:", mErr?.message);
+                }
 
-            if (response.data?.success) {
-                const theaterData = Array.isArray(
-                    response.data.theaters
-                )
-                    ? response.data.theaters
-                    : [];
-
-                console.log("TOTAL THEATERS:", theaterData.length);
-
-                theaterData.forEach((theater) => {
-                    console.log(
-                        "Theater:",
-                        theater.name
-                    );
-
-                    console.log(
-                        "Movies:",
-                        theater.movies
-                    );
-
-                    theater.movies?.forEach((movie) => {
-                        console.log(
-                            "Movie:",
-                            movie.title
-                        );
-
-                        console.log(
-                            "Shows:",
-                            movie.shows
-                        );
-                    });
+                const movieDocMap = new Map();
+                moviesFromDb.forEach((m) => {
+                    if (m && (m._id || m.id)) {
+                        movieDocMap.set(String(m._id || m.id), m);
+                    }
                 });
 
-                setTheaters(theaterData);
-            } else {
-                setError(
-                    response.data?.message ||
-                        "Failed to load theaters."
+                // 4. Keep only active shows (Current date/time onwards)
+                const now = new Date();
+
+                const activeShows = shows.filter((s) => {
+                    const showTime = new Date(s.showDateTime || s.date);
+                    return !isNaN(showTime.getTime()) && showTime >= now;
+                });
+
+                // 5. Group active shows by theaterId
+                const showsByTheater = new Map();
+
+                activeShows.forEach((show) => {
+                    const tid = resolveTheaterFromShow(show);
+                    if (!tid) return;
+
+                    if (!showsByTheater.has(tid)) {
+                        showsByTheater.set(tid, []);
+                    }
+                    showsByTheater.get(tid).push(show);
+                });
+
+                // 6. Build final list — relying strictly on active show mappings rather than stale theater.movies arrays
+                const finalList = [];
+
+                for (const theater of theatersList) {
+                    const tid = String(theater._id);
+                    const theaterShows = showsByTheater.get(tid) || [];
+
+                    // Skip theaters with no active upcoming shows (ignores stale theater.movies array)
+                    if (theaterShows.length === 0) continue;
+
+                    const movieMap = new Map();
+
+                    theaterShows.forEach((show) => {
+                        const m = show.movie;
+                        const movieId =
+                            m && typeof m === "object"
+                                ? String(m._id)
+                                : m
+                                ? String(m)
+                                : null;
+                        if (!movieId) return;
+
+                        if (!movieMap.has(movieId)) {
+                            movieMap.set(movieId, {
+                                movie:
+                                    m && typeof m === "object"
+                                        ? m
+                                        : {
+                                              _id: movieId,
+                                              title: show.movieTitle || "Movie",
+                                          },
+                                shows: [],
+                            });
+                        }
+                        movieMap.get(movieId).shows.push(show);
+                    });
+
+                    const movies = [];
+                    for (const [movieId, entry] of movieMap.entries()) {
+                        let movie =
+                            movieDocMap.get(movieId) || entry.movie;
+
+                        const showTimes = entry.shows
+                            .map((s) => new Date(s.showDateTime))
+                            .filter((d) => !isNaN(d.getTime()))
+                            .sort((a, b) => a - b);
+
+                        if (showTimes.length === 0) continue;
+
+                        const { highest, count } = getUserRatingInfo(movie);
+
+                        movies.push({
+                            ...movie,
+                            _id: movieId,
+                            _earliest: showTimes[0]?.getTime() || 0,
+                            _showDateTimes: showTimes.map((d) => d.getTime()),
+                            _highestRating: highest,
+                            _ratingCount: count,
+                            _theaters: [
+                                {
+                                    _id: theater._id,
+                                    name: theater.name || "",
+                                    city: theater.city || "",
+                                    address: theater.address || "",
+                                },
+                            ],
+                        });
+                    }
+
+                    movies.sort((a, b) => a._earliest - b._earliest);
+
+                    if (movies.length > 0) {
+                        finalList.push({
+                            ...theater,
+                            _movies: movies,
+                            _activeShowCount: theaterShows.length,
+                        });
+                    }
+                }
+
+                finalList.sort((a, b) =>
+                    (a.name || "").localeCompare(b.name || "")
                 );
+
+                setTheaters(finalList);
+            } catch (err) {
+                console.error("Error loading theaters:", err);
+                setError("Unable to load theaters. Please try again.");
+                setTheaters([]);
+            } finally {
+                setLoading(false);
             }
-        } catch (err) {
-            console.error(
-                "Error fetching theaters:",
-                err
-            );
+        };
 
-            console.error(
-                "Server response:",
-                err.response?.data
-            );
-
-            setError(
-                err.response?.data?.message ||
-                    "Unable to connect to server."
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // =====================================================
-    // INITIAL FETCH
-    // =====================================================
-
-    useEffect(() => {
-        fetchTheaters();
+        fetchData();
     }, []);
 
-    // =====================================================
-    // FORMAT TIME
-    // =====================================================
-
-    const formatTime = (dateTime) => {
-        if (!dateTime) {
-            return "N/A";
-        }
-
-        const date = new Date(dateTime);
-
-        if (isNaN(date.getTime())) {
-            return "Invalid Time";
-        }
-
-        return date.toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true,
-        });
-    };
-
-    // =====================================================
-    // FORMAT DATE
-    // =====================================================
-
-    const formatDate = (dateTime) => {
-        if (!dateTime) {
-            return "";
-        }
-
-        const date = new Date(dateTime);
-
-        if (isNaN(date.getTime())) {
-            return "";
-        }
-
-        return date.toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-        });
-    };
-
-    // =====================================================
-    // MOVIE POSTER
-    // =====================================================
-
-    const getPoster = (posterPath) => {
-        if (!posterPath) {
-            return "/fallback.jpg";
-        }
-
-        if (
-            posterPath.startsWith("http://") ||
-            posterPath.startsWith("https://")
-        ) {
-            return posterPath;
-        }
-
-        return `https://image.tmdb.org/t/p/w500${posterPath}`;
-    };
-
-    // =====================================================
-    // IMAGE ERROR
-    // =====================================================
-
-    const handleImageError = (e) => {
-        e.currentTarget.src = "/fallback.jpg";
-    };
-
-    // =====================================================
-    // HANDLE SHOWTIME CLICK
-    // =====================================================
-
-    const handleShowClick = (show, movie) => {
-        if (!show?._id) {
-            console.error("Show ID missing:", show);
-            return;
-        }
-
-        console.log("Selected Show:", show);
-        console.log("Selected Movie:", movie);
-
-        /*
-         * Navigate to your SeatLayout page.
-         *
-         * Change this URL only if your existing
-         * SeatLayout route is different.
-         */
-
-        navigate(`/seat-layout/${show._id}`, {
-            state: {
-                show,
-                movie,
-            },
-        });
-    };
-
-    // =====================================================
-    // RENDER
-    // =====================================================
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-black text-white flex items-center justify-center">
+                <Loading />
+            </div>
+        );
+    }
 
     return (
-        <>
-            <Navbar />
+        <div className="min-h-screen bg-black text-white">
+            <div className="relative overflow-hidden">
+                <BlurCircle top="100px" left="0px" />
+                <BlurCircle top="500px" right="0px" />
 
-            <div className="relative min-h-screen bg-[#0f0f0f] text-white overflow-hidden">
-
-                {/* =====================================================
-                    BACKGROUND
-                ===================================================== */}
-
-                <BlurCircle
-                    top="-80px"
-                    left="-80px"
-                />
-
-                <BlurCircle
-                    top="500px"
-                    right="-100px"
-                />
-
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
-
-                    {/* =====================================================
-                        PAGE HEADER
-                    ===================================================== */}
-
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
-
-                        <div>
-                            <h1 className="text-3xl sm:text-4xl font-bold">
-                                Theaters
-                            </h1>
-
-                            <p className="text-gray-400 mt-2">
-                                Explore movies and showtimes available
-                                at different theaters.
-                            </p>
-                        </div>
-
-                        {!loading && (
-                            <button
-                                type="button"
-                                onClick={fetchTheaters}
-                                className="
-                                    flex
-                                    items-center
-                                    justify-center
-                                    gap-2
-                                    px-4
-                                    py-2
-                                    rounded-lg
-                                    bg-gray-800
-                                    border
-                                    border-gray-700
-                                    hover:bg-gray-700
-                                    transition
-                                    text-sm
-                                "
-                            >
-                                <RefreshCw size={16} />
-
-                                Refresh
-                            </button>
-                        )}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 lg:px-16 py-14">
+                    {/* TITLE */}
+                    <div className="mb-10">
+                        <h1 className="text-3xl md:text-4xl font-bold text-white">
+                            Our <span className="text-primary">Theaters</span>
+                        </h1>
+                        <p className="text-gray-400 text-sm mt-2">
+                            {theaters.length}{" "}
+                            {theaters.length === 1 ? "theater" : "theaters"}{" "}
+                            ·{" "}
+                            {theaters.reduce(
+                                (sum, t) => sum + t._movies.length,
+                                0
+                            )}{" "}
+                            movies currently playing
+                        </p>
                     </div>
 
-                    {/* =====================================================
-                        LOADING
-                    ===================================================== */}
-
-                    {loading && (
-                        <div className="flex flex-col items-center justify-center py-20">
-
-                            <Loader2
-                                className="animate-spin text-primary"
-                                size={40}
-                            />
-
-                            <p className="text-gray-400 mt-4">
-                                Loading theaters and movies...
-                            </p>
-
+                    {/* ERROR */}
+                    {error && (
+                        <div className="mb-6 px-4 py-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-400">
+                            {error}
                         </div>
                     )}
 
-                    {/* =====================================================
-                        ERROR
-                    ===================================================== */}
-
-                    {!loading && error && (
-                        <div
-                            className="
-                                bg-red-500/10
-                                border
-                                border-red-500/30
-                                rounded-xl
-                                p-6
-                                text-center
-                            "
-                        >
-                            <p className="text-red-400">
-                                {error}
-                            </p>
-
-                            <p className="text-gray-500 text-sm mt-2">
-                                Make sure your backend is running
-                                on port 5000.
-                            </p>
-
-                            <button
-                                type="button"
-                                onClick={fetchTheaters}
-                                className="
-                                    mt-5
-                                    px-5
-                                    py-2
-                                    rounded-lg
-                                    bg-primary
-                                    hover:opacity-90
-                                    transition
-                                    font-medium
-                                "
-                            >
-                                Try Again
-                            </button>
+                    {/* EMPTY */}
+                    {theaters.length === 0 && !error && (
+                        <div className="text-center py-20 text-gray-500">
+                            No theaters are currently showing any movies.
                         </div>
                     )}
 
-                    {/* =====================================================
-                        NO THEATERS
-                    ===================================================== */}
+                    {/* THEATER LIST */}
+                    <div className="space-y-12">
+                        {theaters.map((theater) => {
+                            const theaterTopRating = (() => {
+                                const rated = theater._movies.filter(
+                                    (m) =>
+                                        m._highestRating > 0 &&
+                                        m._ratingCount > 0
+                                );
+                                return rated.length > 0
+                                    ? Math.max(
+                                          ...rated.map(
+                                              (m) => m._highestRating
+                                          )
+                                      )
+                                    : 0;
+                            })();
 
-                    {!loading &&
-                        !error &&
-                        theaters.length === 0 && (
-                            <div className="text-center py-20">
+                            return (
+                                <div
+                                    key={theater._id}
+                                    className="border border-gray-800 rounded-2xl bg-gray-900/40 overflow-hidden"
+                                >
+                                    {/* THEATER HEADER */}
+                                    <div className="p-6 border-b border-gray-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                        <div className="min-w-0">
+                                            <h2 className="text-xl sm:text-2xl font-bold text-white truncate">
+                                                {theater.name}
+                                            </h2>
 
-                                <Film
-                                    size={50}
-                                    className="mx-auto text-gray-600"
-                                />
+                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-gray-400">
+                                                <span className="flex items-center gap-1.5">
+                                                    <MapPin
+                                                        size={14}
+                                                        className="text-primary"
+                                                    />
+                                                    {theater.city}
+                                                    {theater.address &&
+                                                        `, ${theater.address}`}
+                                                </span>
 
-                                <h2 className="text-xl font-semibold mt-4">
-                                    No theaters available
-                                </h2>
-
-                                <p className="text-gray-500 mt-2">
-                                    No movie shows are currently
-                                    assigned to theaters.
-                                </p>
-
-                            </div>
-                        )}
-
-                    {/* =====================================================
-                        THEATERS
-                    ===================================================== */}
-
-                    {!loading &&
-                        !error &&
-                        theaters.length > 0 && (
-                            <div className="space-y-8">
-
-                                {theaters.map(
-                                    (theater, theaterIndex) => {
-
-                                        const movies =
-                                            Array.isArray(
-                                                theater.movies
-                                            )
-                                                ? theater.movies
-                                                : [];
-
-                                        return (
-                                            <div
-                                                key={
-                                                    theater._id ||
-                                                    theaterIndex
-                                                }
-                                                className="
-                                                    bg-gray-900/80
-                                                    border
-                                                    border-gray-800
-                                                    rounded-2xl
-                                                    p-5
-                                                    sm:p-7
-                                                    shadow-xl
-                                                "
-                                            >
-
-                                                {/* =====================================================
-                                                    THEATER INFORMATION
-                                                ===================================================== */}
-
-                                                <div
-                                                    className="
-                                                        flex
-                                                        flex-col
-                                                        sm:flex-row
-                                                        sm:items-start
-                                                        sm:justify-between
-                                                        gap-4
-                                                    "
-                                                >
-
-                                                    <div>
-
-                                                        <h2
-                                                            className="
-                                                                text-2xl
-                                                                font-bold
-                                                                text-white
-                                                            "
-                                                        >
-                                                            {theater.name ||
-                                                                "Unknown Theater"}
-                                                        </h2>
-
-                                                        <div
-                                                            className="
-                                                                flex
-                                                                items-center
-                                                                gap-2
-                                                                text-gray-400
-                                                                mt-2
-                                                            "
-                                                        >
-                                                            <MapPin
-                                                                size={17}
-                                                                className="
-                                                                    text-primary
-                                                                    shrink-0
-                                                                "
-                                                            />
-
-                                                            <span>
-                                                                {theater.address
-                                                                    ? `${theater.address}, `
-                                                                    : ""}
-
-                                                                {theater.city ||
-                                                                    "Kathmandu"}
-                                                            </span>
-                                                        </div>
-
-                                                    </div>
-
-                                                    <div
-                                                        className="
-                                                            flex
-                                                            items-center
-                                                            gap-2
-                                                            text-sm
-                                                            text-gray-400
-                                                        "
-                                                    >
-                                                        <Film size={17} />
-
-                                                        <span>
-                                                            {movies.length}{" "}
-                                                            {movies.length ===
-                                                            1
-                                                                ? "Movie"
-                                                                : "Movies"}
+                                                {theater.phone && (
+                                                    <>
+                                                        <span className="text-gray-600">
+                                                            •
                                                         </span>
-                                                    </div>
-
-                                                </div>
-
-                                                {/* =====================================================
-                                                    MOVIES
-                                                ===================================================== */}
-
-                                                <div className="mt-7">
-
-                                                    <h3
-                                                        className="
-                                                            text-lg
-                                                            font-semibold
-                                                            mb-5
-                                                            flex
-                                                            items-center
-                                                            gap-2
-                                                        "
-                                                    >
-                                                        <Film
-                                                            size={20}
-                                                            className="text-primary"
-                                                        />
-
-                                                        Movies Available
-                                                    </h3>
-
-                                                    {movies.length > 0 ? (
-
-                                                        <div className="space-y-6">
-
-                                                            {movies.map(
-                                                                (
-                                                                    movie,
-                                                                    movieIndex
-                                                                ) => {
-
-                                                                    const shows =
-                                                                        Array.isArray(
-                                                                            movie.shows
-                                                                        )
-                                                                            ? [
-                                                                                  ...movie.shows,
-                                                                              ]
-                                                                            : [];
-
-                                                                    /*
-                                                                     * Sort showtimes
-                                                                     * by date/time.
-                                                                     */
-
-                                                                    shows.sort(
-                                                                        (
-                                                                            a,
-                                                                            b
-                                                                        ) =>
-                                                                            new Date(
-                                                                                a.showDateTime
-                                                                            ) -
-                                                                            new Date(
-                                                                                b.showDateTime
-                                                                            )
-                                                                    );
-
-                                                                    return (
-                                                                        <div
-                                                                            key={
-                                                                                movie._id ||
-                                                                                movieIndex
-                                                                            }
-                                                                            className="
-                                                                                bg-gray-800/70
-                                                                                border
-                                                                                border-gray-700
-                                                                                rounded-xl
-                                                                                p-4
-                                                                                sm:p-5
-                                                                            "
-                                                                        >
-
-                                                                            {/* =====================================================
-                                                                                MOVIE
-                                                                            ===================================================== */}
-
-                                                                            <div
-                                                                                className="
-                                                                                    flex
-                                                                                    flex-col
-                                                                                    sm:flex-row
-                                                                                    gap-5
-                                                                                "
-                                                                            >
-
-                                                                                {/* POSTER */}
-
-                                                                                <img
-                                                                                    src={getPoster(
-                                                                                        movie.poster_path
-                                                                                    )}
-                                                                                    alt={
-                                                                                        movie.title ||
-                                                                                        "Movie"
-                                                                                    }
-                                                                                    onError={
-                                                                                        handleImageError
-                                                                                    }
-                                                                                    className="
-                                                                                        w-24
-                                                                                        h-36
-                                                                                        sm:w-28
-                                                                                        sm:h-40
-                                                                                        object-cover
-                                                                                        rounded-lg
-                                                                                        shrink-0
-                                                                                        bg-gray-700
-                                                                                    "
-                                                                                />
-
-                                                                                {/* MOVIE DETAILS */}
-
-                                                                                <div
-                                                                                    className="
-                                                                                        min-w-0
-                                                                                        flex-1
-                                                                                    "
-                                                                                >
-
-                                                                                    <h4
-                                                                                        className="
-                                                                                            text-lg
-                                                                                            sm:text-xl
-                                                                                            font-semibold
-                                                                                        "
-                                                                                    >
-                                                                                        {movie.title ||
-                                                                                            "Movie title not available"}
-                                                                                    </h4>
-
-                                                                                    {/* MOVIE INFO */}
-
-                                                                                    <div
-                                                                                        className="
-                                                                                            flex
-                                                                                            flex-wrap
-                                                                                            items-center
-                                                                                            gap-x-3
-                                                                                            gap-y-1
-                                                                                            text-sm
-                                                                                            text-gray-400
-                                                                                            mt-2
-                                                                                        "
-                                                                                    >
-
-                                                                                        <span>
-                                                                                            {movie.release_date
-                                                                                                ? new Date(
-                                                                                                      movie.release_date
-                                                                                                  ).getFullYear()
-                                                                                                : "N/A"}
-                                                                                        </span>
-
-                                                                                        <span>
-                                                                                            •
-                                                                                        </span>
-
-                                                                                        <span>
-                                                                                            {movie.runtime
-                                                                                                ? `${movie.runtime} min`
-                                                                                                : "N/A"}
-                                                                                        </span>
-
-                                                                                        {movie.vote_average >
-                                                                                            0 && (
-                                                                                            <>
-                                                                                                <span>
-                                                                                                    •
-                                                                                                </span>
-
-                                                                                                <span>
-                                                                                                    ⭐{" "}
-                                                                                                    {Number(
-                                                                                                        movie.vote_average
-                                                                                                    ).toFixed(
-                                                                                                        1
-                                                                                                    )}
-                                                                                                </span>
-                                                                                            </>
-                                                                                        )}
-
-                                                                                    </div>
-
-                                                                                    {/* GENRES */}
-
-                                                                                    {Array.isArray(
-                                                                                        movie.genres
-                                                                                    ) &&
-                                                                                        movie.genres.length >
-                                                                                            0 && (
-                                                                                            <div
-                                                                                                className="
-                                                                                                    flex
-                                                                                                    flex-wrap
-                                                                                                    gap-2
-                                                                                                    mt-3
-                                                                                                "
-                                                                                            >
-                                                                                                {movie.genres
-                                                                                                    .slice(
-                                                                                                        0,
-                                                                                                        3
-                                                                                                    )
-                                                                                                    .map(
-                                                                                                        (
-                                                                                                            genre,
-                                                                                                            index
-                                                                                                        ) => (
-                                                                                                            <span
-                                                                                                                key={
-                                                                                                                    genre.id ||
-                                                                                                                    index
-                                                                                                                }
-                                                                                                                className="
-                                                                                                                    px-2
-                                                                                                                    py-1
-                                                                                                                    text-xs
-                                                                                                                    rounded-full
-                                                                                                                    bg-gray-700
-                                                                                                                    text-gray-300
-                                                                                                                "
-                                                                                                            >
-                                                                                                                {genre.name ||
-                                                                                                                    genre}
-                                                                                                            </span>
-                                                                                                        )
-                                                                                                    )}
-                                                                                            </div>
-                                                                                        )}
-
-                                                                                </div>
-
-                                                                            </div>
-
-                                                                            {/* =====================================================
-                                                                                SHOWTIMES
-                                                                            ===================================================== */}
-
-                                                                            <div className="mt-6">
-
-                                                                                <div
-                                                                                    className="
-                                                                                        flex
-                                                                                        items-center
-                                                                                        gap-2
-                                                                                        text-sm
-                                                                                        text-gray-300
-                                                                                        mb-3
-                                                                                    "
-                                                                                >
-                                                                                    <Clock
-                                                                                        size={
-                                                                                            16
-                                                                                        }
-                                                                                        className="text-primary"
-                                                                                    />
-
-                                                                                    <span className="font-medium">
-                                                                                        Showtimes
-                                                                                    </span>
-                                                                                </div>
-
-                                                                                {shows.length >
-                                                                                0 ? (
-
-                                                                                    <div
-                                                                                        className="
-                                                                                            grid
-                                                                                            grid-cols-2
-                                                                                            sm:grid-cols-3
-                                                                                            md:grid-cols-4
-                                                                                            lg:grid-cols-5
-                                                                                            gap-3
-                                                                                        "
-                                                                                    >
-                                                                                        {shows.map(
-                                                                                            (
-                                                                                                show,
-                                                                                                showIndex
-                                                                                            ) => (
-                                                                                                <button
-                                                                                                    key={
-                                                                                                        show._id ||
-                                                                                                        showIndex
-                                                                                                    }
-                                                                                                    type="button"
-                                                                                                    onClick={() =>
-                                                                                                        handleShowClick(
-                                                                                                            show,
-                                                                                                            movie
-                                                                                                        )
-                                                                                                    }
-                                                                                                    className="
-                                                                                                        group
-                                                                                                        text-left
-                                                                                                        px-4
-                                                                                                        py-3
-                                                                                                        rounded-xl
-                                                                                                        bg-gray-700
-                                                                                                        hover:bg-primary
-                                                                                                        border
-                                                                                                        border-gray-600
-                                                                                                        hover:border-primary
-                                                                                                        transition-all
-                                                                                                        duration-200
-                                                                                                        hover:scale-[1.02]
-                                                                                                    "
-                                                                                                >
-
-                                                                                                    <div
-                                                                                                        className="
-                                                                                                            flex
-                                                                                                            items-center
-                                                                                                            gap-2
-                                                                                                            text-white
-                                                                                                            font-semibold
-                                                                                                        "
-                                                                                                    >
-                                                                                                        <Clock
-                                                                                                            size={
-                                                                                                                15
-                                                                                                            }
-                                                                                                        />
-
-                                                                                                        {formatTime(
-                                                                                                            show.showDateTime
-                                                                                                        )}
-                                                                                                    </div>
-
-                                                                                                    <div
-                                                                                                        className="
-                                                                                                            flex
-                                                                                                            items-center
-                                                                                                            gap-2
-                                                                                                            text-xs
-                                                                                                            text-gray-400
-                                                                                                            group-hover:text-white/80
-                                                                                                            mt-1
-                                                                                                        "
-                                                                                                    >
-                                                                                                        <CalendarDays
-                                                                                                            size={
-                                                                                                                13
-                                                                                                            }
-                                                                                                        />
-
-                                                                                                        {formatDate(
-                                                                                                            show.showDateTime
-                                                                                                        )}
-                                                                                                    </div>
-
-                                                                                                    <div
-                                                                                                        className="
-                                                                                                            flex
-                                                                                                            items-center
-                                                                                                            gap-2
-                                                                                                            text-xs
-                                                                                                            text-primary
-                                                                                                            group-hover:text-white
-                                                                                                            mt-2
-                                                                                                        "
-                                                                                                    >
-                                                                                                        <Ticket
-                                                                                                            size={
-                                                                                                                13
-                                                                                                            }
-                                                                                                        />
-
-                                                                                                        NPR{" "}
-                                                                                                        {show.showPrice ??
-                                                                                                            0}
-                                                                                                    </div>
-
-                                                                                                </button>
-                                                                                            )
-                                                                                        )}
-                                                                                    </div>
-
-                                                                                ) : (
-
-                                                                                    <div
-                                                                                        className="
-                                                                                            bg-gray-900/50
-                                                                                            border
-                                                                                            border-gray-700
-                                                                                            rounded-lg
-                                                                                            p-4
-                                                                                        "
-                                                                                    >
-                                                                                        <p className="text-sm text-gray-500">
-                                                                                            No showtimes
-                                                                                            available.
-                                                                                        </p>
-                                                                                    </div>
-
-                                                                                )}
-
-                                                                            </div>
-
-                                                                        </div>
-                                                                    );
-                                                                }
-                                                            )}
-
-                                                        </div>
-
-                                                    ) : (
-
-                                                        <div
-                                                            className="
-                                                                bg-gray-800/50
-                                                                border
-                                                                border-gray-700
-                                                                rounded-xl
-                                                                p-5
-                                                            "
-                                                        >
-                                                            <p className="text-gray-500">
-                                                                No movies
-                                                                available
-                                                                at this
-                                                                theater.
-                                                            </p>
-                                                        </div>
-
-                                                    )}
-
-                                                </div>
-
+                                                        <span>
+                                                            {theater.phone}
+                                                        </span>
+                                                    </>
+                                                )}
                                             </div>
-                                        );
-                                    }
-                                )}
+                                        </div>
 
-                            </div>
-                        )}
+                                        <div className="flex items-center gap-3 shrink-0">
+                                            <span className="text-xs text-gray-400 bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                                                {theater._movies.length}{" "}
+                                                {theater._movies.length === 1
+                                                    ? "movie"
+                                                    : "movies"}
+                                            </span>
+                                        </div>
+                                    </div>
 
+                                    {/* MOVIES ROW */}
+                                    <div className="overflow-x-auto no-scrollbar">
+                                        <div className="flex gap-6 p-6">
+                                            {theater._movies.map((movie) => {
+                                                const hasRating =
+                                                    movie._highestRating >
+                                                        0 &&
+                                                    movie._ratingCount >
+                                                        0;
+
+                                                const isTopRated =
+                                                    hasRating &&
+                                                    movie._highestRating ===
+                                                        theaterTopRating;
+
+                                                return (
+                                                    <div
+                                                        key={movie._id}
+                                                        className="w-64 flex-shrink-0 relative"
+                                                    >
+                                                        {isTopRated && (
+                                                            <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-yellow-500 text-black text-xs font-bold px-2.5 py-1 rounded-full shadow-lg">
+                                                                <Trophy
+                                                                    size={
+                                                                        12
+                                                                    }
+                                                                />
+                                                                Top Rated
+                                                            </div>
+                                                        )}
+
+                                                        <MovieCard
+                                                            movie={movie}
+                                                            theaters={
+                                                                movie._theaters
+                                                            }
+                                                            showDateTimes={
+                                                                movie._showDateTimes
+                                                            }
+                                                        />
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
-
-            <Footer />
-        </>
+        </div>
     );
 };
 

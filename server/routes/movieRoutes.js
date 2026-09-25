@@ -1,24 +1,33 @@
 import express from "express";
-
 import {
-  addMovie,
-  getMovies,
-} from "../controllers/movieController.js";
+    getMovies,
+    addMovie,
+    getMovieById,
+    searchMovies,
+    rateMovie,
+    getMovieRatings,
+} from "../controllers/showController.js";
 
-const movieRouter = express.Router();
+import { protect } from "../middleware/auth.js";   // ← यही नाम
+
+const router = express.Router();
 
 // =====================================================
-// ADD MOVIE
-// POST: /api/movie/add
+// Specific routes FIRST
 // =====================================================
-
-movieRouter.post("/add", addMovie);
+router.get("/movie/all", getMovies);
+router.get("/movie/search", searchMovies);
 
 // =====================================================
-// GET ALL MOVIES
-// GET: /api/movie/all
+// RATING ROUTES — protected
 // =====================================================
+router.get("/movie/:id/ratings", protect, getMovieRatings);
+router.post("/movie/:id/rate", protect, rateMovie);
 
-movieRouter.get("/all", getMovies);
+// =====================================================
+// Param routes LAST
+// =====================================================
+router.get("/movie/:id", getMovieById);
+router.post("/movie/add", addMovie);
 
-export default movieRouter;
+export default router;

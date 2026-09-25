@@ -1,38 +1,222 @@
 import Theater from "../models/Theater.js";
-import Show from "../models/Show.js";
 import Movie from "../models/Movie.js";
 // =====================================================
-// SEED THEATERS (if empty)
+// DUMMY THEATERS (Kathmandu Valley) – embedded here
+// =====================================================
+const dummyTheaters = [
+    {
+        name: "QFX Civil Mall",
+        address: "Civil Trade Centre, Sundhara",
+        city: "Kathmandu",
+        latitude: 27.7000,
+        longitude: 85.3167,
+    },
+    {
+        name: "QFX Chhaya Center",
+        address: "Chhaya Center, Thamel",
+        city: "Kathmandu",
+        latitude: 27.7133,
+        longitude: 85.3153,
+    },
+    {
+        name: "QFX Durbar Cinemax",
+        address: "Durbar Mall, Durbarmarg",
+        city: "Kathmandu",
+        latitude: 27.7064,
+        longitude: 85.3185,
+    },
+    {
+        name: "QFX Labim Mall",
+        address: "Labim Mall, Pulchowk",
+        city: "Lalitpur",
+        latitude: 27.6733,
+        longitude: 85.3215,
+    },
+    {
+        name: "QFX Rising Mall",
+        address: "Rising Mall, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.6967,
+        longitude: 85.3142,
+    },
+    {
+        name: "QFX Thimi",
+        address: "Bhaktapur",
+        city: "Bhaktapur",
+        latitude: 27.6728,
+        longitude: 85.4299,
+    },
+    {
+        name: "Ranjana Cineplex",
+        address: "New Road, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7042,
+        longitude: 85.3101,
+    },
+    {
+        name: "Bishwojyoti Cineplex",
+        address: "Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7024,
+        longitude: 85.3161,
+    },
+    {
+        name: "Cine de Chef",
+        address: "Civil Trade Centre, Sundhara",
+        city: "Kathmandu",
+        latitude: 27.7000,
+        longitude: 85.3167,
+    },
+    {
+        name: "Guna Cinema",
+        address: "Gwarko, Lalitpur",
+        city: "Lalitpur",
+        latitude: 27.6578,
+        longitude: 85.3233,
+    },
+    {
+        name: "FCube Cinemas",
+        address: "KL Tower, Chabahil",
+        city: "Kathmandu",
+        latitude: 27.7233,
+        longitude: 85.3389,
+    },
+    {
+        name: "One Cinemas",
+        address: "Eyeplex Mall, New Baneshwor",
+        city: "Kathmandu",
+        latitude: 27.6914,
+        longitude: 85.3350,
+    },
+    {
+        name: "Jai Nepal Cinemas",
+        address: "Narayanhiti Marg, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7100,
+        longitude: 85.3133,
+    },
+    {
+        name: "Asta Narayan Pictures",
+        address: "Balaju, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7167,
+        longitude: 85.3089,
+    },
+    {
+        name: "BSR Movies",
+        address: "Gongabu, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7211,
+        longitude: 85.3167,
+    },
+    {
+        name: "Infinity Movies",
+        address: "Gongabu, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7211,
+        longitude: 85.3167,
+    },
+    {
+        name: "INI Lotse Cinemas",
+        address: "Naya Buspark, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7100,
+        longitude: 85.3300,
+    },
+    {
+        name: "INI Screenplay Cinemas",
+        address: "Baneshwor, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.6894,
+        longitude: 85.3333,
+    },
+    {
+        name: "Kirtipur Cineplex",
+        address: "Kirtipur, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.6744,
+        longitude: 85.2786,
+    },
+    {
+        name: "Metro Plaza Cinema Complex",
+        address: "Kuleshwor, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.6944,
+        longitude: 85.2800,
+    },
+    {
+        name: "MidTown Cinemas",
+        address: "Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7000,
+        longitude: 85.3167,
+    },
+    {
+        name: "Mandala Theatre",
+        address: "Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7000,
+        longitude: 85.3167,
+    },
+    {
+        name: "City Square Mall (QFX)",
+        address: "Samakhusi, Kathmandu",
+        city: "Kathmandu",
+        latitude: 27.7292,
+        longitude: 85.3181,
+    },
+];
+
+// =====================================================
+// SEED THEATERS – inserts any missing from dummyTheaters
 // =====================================================
 export const seedTheaters = async () => {
     try {
         const count = await Theater.countDocuments();
         if (count === 0) {
-            await Theater.insertMany([
-                {
-                    name: "QuickShow Cinema Lalitpur",
-                    address: "Pulchowk Road",
-                    city: "Lalitpur",
-                    location: {
-                        type: "Point",
-                        coordinates: [85.3123, 27.6782], // [longitude, latitude]
-                    },
-                    latitude: 27.6782,
-                    longitude: 85.3123,
+            // No theaters at all – insert all dummy theaters
+            const theatersToInsert = dummyTheaters.map((t) => ({
+                name: t.name,
+                address: t.address || "",
+                city: t.city || "",
+                latitude: t.latitude || 0,
+                longitude: t.longitude || 0,
+                location: {
+                    type: "Point",
+                    coordinates: [t.longitude || 0, t.latitude || 0],
                 },
-                {
-                    name: "QuickShow Multiplex Kathmandu",
-                    address: "Durbar Marg",
-                    city: "Kathmandu",
-                    location: {
-                        type: "Point",
-                        coordinates: [85.3188, 27.7089],
+                isActive: true,
+            }));
+            await Theater.insertMany(theatersToInsert);
+            console.log(`✅ ${theatersToInsert.length} theaters seeded successfully!`);
+        } else {
+            // Some theaters already exist – upsert missing ones by name
+            let inserted = 0;
+            for (const t of dummyTheaters) {
+                const result = await Theater.updateOne(
+                    { name: t.name },
+                    {
+                        $set: {
+                            address: t.address || "",
+                            city: t.city || "",
+                            latitude: t.latitude || 0,
+                            longitude: t.longitude || 0,
+                            location: {
+                                type: "Point",
+                                coordinates: [t.longitude || 0, t.latitude || 0],
+                            },
+                            isActive: true,
+                        },
                     },
-                    latitude: 27.7089,
-                    longitude: 85.3188,
-                },
-            ]);
-            console.log("✅ Sample theaters seeded successfully!");
+                    { upsert: true }
+                );
+                if (result.upsertedCount > 0) inserted++;
+            }
+            if (inserted > 0) {
+                console.log(`✅ ${inserted} new theaters added.`);
+            } else {
+                console.log(`ℹ️ All ${dummyTheaters.length} theaters already exist.`);
+            }
         }
     } catch (error) {
         console.error("❌ Error seeding theaters:", error);
@@ -138,7 +322,6 @@ export const addTheater = async (req, res) => {
     try {
         const { name, city, address, latitude, longitude, phone, email, image } = req.body;
 
-        // -------- validation --------
         if (!name || !city || !address) {
             return res.status(400).json({
                 success: false,
@@ -153,7 +336,6 @@ export const addTheater = async (req, res) => {
             });
         }
 
-        // -------- build location object --------
         const location = {
             type: "Point",
             coordinates: [parseFloat(longitude), parseFloat(latitude)],
@@ -201,7 +383,6 @@ export const updateTheater = async (req, res) => {
             });
         }
 
-        // If latitude/longitude are provided, update location as well
         if (updates.latitude !== undefined && updates.longitude !== undefined) {
             updates.location = {
                 type: "Point",
@@ -272,154 +453,35 @@ export const deleteTheater = async (req, res) => {
     }
 };
 
-
 // =====================================================
-// GET THEATERS WITH MOVIES AND SHOW TIMES
+// GET THEATERS WITH MOVIES
 // =====================================================
-
 
 export const getTheatersWithMovies = async (req, res) => {
     try {
-        // Get all shows
-        const shows = await Show.find().sort({
-            showDateTime: 1,
-        });
+        const theaters = await Theater.find({
+            isActive: true,
+        }).sort({ name: 1 });
 
-        console.log("=================================");
-        console.log("TOTAL SHOWS:", shows.length);
-        console.log("=================================");
+        // Get all movies from movies collection
+        const movies = await Movie.find().sort({ title: 1 });
 
-        const theaterMap = new Map();
-
-        for (const show of shows) {
-            console.log("SHOW ID:", show._id);
-            console.log("MOVIE ID:", show.movie);
-            console.log("THEATER:", show.theaterName);
-
-            // Find movie manually
-            const movie = await Movie.findById(show.movie);
-
-            console.log(
-                "MOVIE FOUND:",
-                movie ? movie.title : "NO MOVIE FOUND"
-            );
-
-            if (!movie) {
-                console.log(
-                    "Skipping show because movie was not found:",
-                    show.movie
-                );
-                continue;
-            }
-
-            if (!show.theaterId) {
-                console.log(
-                    "Skipping show because theaterId is missing"
-                );
-                continue;
-            }
-
-            const theaterId = show.theaterId.toString();
-
-            if (!theaterMap.has(theaterId)) {
-                theaterMap.set(theaterId, {
-                    _id: theaterId,
-                    name:
-                        show.theaterName ||
-                        "Unknown Theater",
-                    city: show.theaterCity || "",
-                    address: show.theaterAddress || "",
-                    lat: show.theaterLat || 0,
-                    lng: show.theaterLng || 0,
-                    movies: [],
-                });
-            }
-
-            const theater = theaterMap.get(theaterId);
-
-            // Check whether movie already exists
-            let existingMovie = theater.movies.find(
-                (item) =>
-                    item._id.toString() ===
-                    movie._id.toString()
-            );
-
-            if (!existingMovie) {
-                existingMovie = {
-                    _id: movie._id,
-                    title: movie.title,
-                    overview: movie.overview,
-                    poster_path: movie.poster_path,
-                    backdrop_path: movie.backdrop_path,
-                    release_date: movie.release_date,
-                    original_language:
-                        movie.original_language,
-                    tagline: movie.tagline,
-                    genres: movie.genres || [],
-                    casts: movie.casts || [],
-                    vote_average:
-                        movie.vote_average || 0,
-                    runtime: movie.runtime || 0,
-                    shows: [],
-                };
-
-                theater.movies.push(existingMovie);
-            }
-
-            // Add show time
-            existingMovie.shows.push({
-                _id: show._id,
-                showDateTime: show.showDateTime,
-                showPrice: show.showPrice,
-            });
-        }
-
-        const theaters = Array.from(
-            theaterMap.values()
-        );
-
-        console.log("=================================");
-        console.log(
-            "TOTAL THEATERS:",
-            theaters.length
-        );
-
-        theaters.forEach((theater) => {
-            console.log(
-                "THEATER:",
-                theater.name
-            );
-
-            theater.movies.forEach((movie) => {
-                console.log(
-                    "MOVIE:",
-                    movie.title
-                );
-
-                console.log(
-                    "SHOW COUNT:",
-                    movie.shows.length
-                );
-            });
-        });
-
-        console.log("=================================");
+        // Attach movies to every theater
+        const theatersWithMovies = theaters.map((theater) => ({
+            ...theater.toObject(),
+            movies: movies,
+        }));
 
         return res.status(200).json({
             success: true,
-            theaters,
+            theaters: theatersWithMovies,
         });
-
     } catch (error) {
-        console.error(
-            "Get Theaters With Movies Error:",
-            error
-        );
+        console.error("Get Theaters With Movies Error:", error);
 
         return res.status(500).json({
             success: false,
-            message:
-                "Failed to fetch theaters with movies",
+            message: "Failed to fetch theaters with movies",
             error: error.message,
         });
     }

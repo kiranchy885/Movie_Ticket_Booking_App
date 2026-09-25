@@ -14,100 +14,96 @@ const transporter = nodemailer.createTransport({
 export const sendBookingConfirmationEmail = async ({
     email,
     name,
-    movie,
-    showDateTime,
+    movieTitle,
+    showDate,
+    showTime,
     seats,
     amount,
     bookingId,
-    transactionId,
 }) => {
+    try {
+        const mailOptions = {
+            from: `"Movie Ticket Booking" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: "🎟️ Booking Confirmed - Movie Ticket Booking",
 
+            html: `
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: auto;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                    border-radius: 10px;
+                ">
 
-    const formattedDate = new Date(
-        showDateTime
-    ).toLocaleDateString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-    });
+                    <h2 style="color: #16a34a;">
+                        Booking Confirmed!
+                    </h2>
 
-    const mailOptions = {
-        from:
-        process.env.EMAIL_FROM ||
-        process.env.EMAIL_USER,
+                    <p>Hello <strong>${name}</strong>,</p>
 
-        to: email,
+                    <p>
+                        Your movie ticket booking has been successfully confirmed.
+                    </p>
 
-        subject: "Movie Ticket Booking Confirmed",
+                    <hr>
 
-        html: `
-      <div style="
-        font-family: Arial, sans-serif;
-        max-width: 600px;
-        margin: auto;
-        padding: 30px;
-        background: #111;
-        color: white;
-        border-radius: 10px;
-      ">
+                    <h3>Booking Details</h3>
 
-        <h1 style="color:#f43f5e;">
-          🎬 Booking Confirmed
-        </h1>
+                    <p>
+                        <strong>Booking ID:</strong> ${bookingId}
+                    </p>
 
-        <p>Hello ${name},</p>
+                    <p>
+                        <strong>Movie:</strong> ${movieTitle}
+                    </p>
 
-        <p>
-          Your movie ticket has been successfully booked.
-        </p>
+                    <p>
+                        <strong>Date:</strong> ${showDate}
+                    </p>
 
-        <hr />
+                    <p>
+                        <strong>Time:</strong> ${showTime}
+                    </p>
 
-        <h2>${movie}</h2>
+                    <p>
+                        <strong>Seats:</strong> ${seats.join(", ")}
+                    </p>
 
-        <p>
-          <strong>Date:</strong>
-          ${formattedDate}
-        </p>
+                    <p>
+                        <strong>Total Amount:</strong> Rs. ${amount}
+                    </p>
 
-        <p>
-          <strong>Time:</strong>
-          ${formattedTime}
-        </p>
+                    <hr>
 
-        <p>
-          <strong>Seats:</strong>
-          ${seats.join(", ")}
-        </p>
+                    <p style="color: #555;">
+                        Please arrive at the movie center a few minutes
+                        before the show starts.
+                    </p>
 
-        <p>
-          <strong>Amount:</strong>
-          Rs. ${amount}
-        </p>
+                    <p>
+                        Thank you for booking with us!
+                    </p>
 
-        <p>
-          <strong>Booking ID:</strong>
-          ${bookingId}
-        </p>
+                </div>
+            `,
+        };
 
-        <p>
-          <strong>Transaction ID:</strong>
-          ${transactionId || "N/A"}
-        </p>
+        await transporter.sendMail(mailOptions);
 
-        <p style="color:#4ade80;">
-          Payment Status: SUCCESS
-        </p>
+        console.log("Booking confirmation email sent to:", email);
 
-        <hr />
+        return {
+            success: true,
+        };
 
-        <p>
-          Thank you for booking with Movie Ticket Booking App.
-        </p>
+    } catch (error) {
+        console.error("Email sending error:", error);
 
-      </div>
-    `,
-  };
-
-  await transporter.sendMail(mailOptions);
+        return {
+            success: false,
+            error: error.message,
+        };
+    }
 };
-    

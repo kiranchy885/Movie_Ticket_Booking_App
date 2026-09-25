@@ -1,18 +1,21 @@
 import express from "express";
 
 import {
-    getRecommendations
+    getMovieRecommendations,
 } from "../controllers/recommendationController.js";
 
-import { protect } from "../middleWare/auth.js";
+const router = express.Router();
 
-const recommendationRouter =
-    express.Router();
+// =====================================================
+// MOVIE RECOMMENDATIONS
+// =====================================================
+// Example:
+// GET /recommendations/movie/123?userId=USER_ID
+//
+// For guest users:
+// GET /recommendations/movie/123
+// =====================================================
 
-recommendationRouter.get(
-    "/",
-    protect,
-    getRecommendations
-);
+router.get("/movie/:movieId", getMovieRecommendations);
 
-export default recommendationRouter;
+export default router;
